@@ -53,7 +53,7 @@ public class OpenMeteoCollector implements SourcePort {
     for (OpenMeteoDaily row : rows) {
       records.add(new RawRecord(sourceName(), row.externalKey(), payload(row), extractedAt));
     }
-    return new Extraction(sourceName(), List.copyOf(records), List.of(), rows);
+    return new Extraction(sourceName(), List.copyOf(records), List.of(), rows, List.of());
   }
 
   private JsonNode fetch(IngestionProperties.OpenMeteo source) {

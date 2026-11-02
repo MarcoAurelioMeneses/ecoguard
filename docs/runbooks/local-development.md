@@ -12,7 +12,7 @@ docker compose -f infra/docker-compose.yml up -d --build --wait
 
 The database password in compose is for this container only. Do not reuse it.
 
-Migrations in `db/migrations` run on the first start of the volume. To apply them again to a database that already exists:
+Flyway applies `db/migration` when the API or the ingestion process starts. To apply the same files with `psql` to a database that is already up:
 
 ```bash
 export ECOGUARD_DATABASE_URL=postgresql://ecoguard:ecoguard@localhost:5432/ecoguard
@@ -38,6 +38,7 @@ One collector:
 ```bash
 ./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=infodengue'
 ./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=open-meteo'
+./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=geosampa-districts'
 ```
 
 Web:
@@ -46,7 +47,7 @@ Web:
 pnpm --filter @ecoguard/web dev
 ```
 
-Open `http://127.0.0.1:3000`. That route is screen 00. `/map` and `/analyst` are the calls to action. They are placeholders.
+Open `http://127.0.0.1:3000`. That route is screen 00. `/map` and `/analyst` are the calls to action. The map lists districts only after the GeoSampa job has run. Score charts stay on the no-data state.
 
 ## Checks
 

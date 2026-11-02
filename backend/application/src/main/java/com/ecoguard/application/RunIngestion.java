@@ -15,6 +15,8 @@ public final class RunIngestion {
     int raw = store.upsertRaw(extraction.records());
     int staging = store.upsertInfoDengue(extraction.infoDengue());
     staging += store.upsertOpenMeteo(extraction.openMeteo());
+    staging += store.upsertDistricts(extraction.districts());
+    int extracted = extraction.records().size() + extraction.districts().size();
     store.recordRun(
         new JobRun(
             runId,
@@ -22,10 +24,10 @@ public final class RunIngestion {
             "succeeded",
             startedAt,
             Instant.now(),
-            extraction.records().size(),
+            extracted,
             raw,
             staging,
             null));
-    return new JobResult(source.sourceName(), runId, extraction.records().size(), raw, staging);
+    return new JobResult(source.sourceName(), runId, extracted, raw, staging);
   }
 }

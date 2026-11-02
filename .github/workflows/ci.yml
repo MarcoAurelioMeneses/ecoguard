@@ -48,6 +48,8 @@ jobs:
         run: ./scripts/check-design-sync.sh
       - name: Lint
         run: pnpm lint
+      - name: Frontend contract test
+        run: pnpm --filter @ecoguard/web test
       - name: Typecheck
         run: pnpm typecheck
       - name: Build placeholder

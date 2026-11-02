@@ -31,5 +31,5 @@ It is not the ingestion source and it is not served to MapLibre. The source of t
 
 - Numbers on the mockups are examples. Do not seed them.
 - There is no observability screen.
-- Light-theme `--accent` is about 4.3:1 on `--bg`. Use it for large text only. The implementation is stricter than the 15px note in `design-system.md`.
+- Light-theme accent in the running app is `#076E94` (`--accent` on `.light`). Control borders use `--border-strong`. Body text stays at least 14px. The path `ecoguard-design/` (design-system v0.2, `extras/estados-*.png`, `uiux-review/auditoria.md`) was not in the workspace. Those token rules are applied here. Pixel comparison against the missing audit images is not done.
 - Overall weights 0.40 / 0.35 / 0.25 are confirmed and configurable. The design-system sentence that still calls them a proposal is the original package text. `docs/risk-methodology.md` is the product rule.

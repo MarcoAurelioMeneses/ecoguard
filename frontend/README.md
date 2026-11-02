@@ -1,23 +1,27 @@
 # Frontend
 
-Next.js app. Screens are features. This build is the theme, the logo, and the route plan.
+Next.js App Router application in `src/`. It is separate from the Java API. Structure and import rules are in [ARCHITECTURE.md](ARCHITECTURE.md).
 
-| Route | Feature | Screen |
-| --- | --- | --- |
-| `/` | `features/about` | 00 What is EcoGuard, the entry |
-| `/overview` | `features/shell` placeholder | 01 |
-| `/map` | placeholder | 02, linked from 00 |
-| `/districts` | placeholder | 03 |
-| `/analyst` | placeholder | 04, linked from 00 |
-| `/alerts` | placeholder | 05 |
-| `/sources` | placeholder | 06 |
+| Route        | Feature             | Screen                                                                |
+| ------------ | ------------------- | --------------------------------------------------------------------- |
+| `/`          | `features/about`    | 00 What is EcoGuard                                                   |
+| `/overview`  | `features/overview` | 01 City overview. KPIs are no-data until scores exist. Chart or table |
+| `/map`       | `features/map`      | 02 Risk map. Geometry from `GET /districts`. Scores are no-data       |
+| `/districts` | `features/district` | 03 District list and `/districts/[code]`                              |
+| `/analyst`   | `features/analyst`  | 04 AI City Analyst                                                    |
+| `/alerts`    | `features/alerts`   | 05 No alerts until those feeds exist                                  |
+| `/sources`   | `features/sources`  | 06 Weights from `GET /risk-config` plus the catalog                   |
 
-`shared/styles/tokens.css` and `public/logo*.svg` are copies of `design/`. `scripts/check-design-sync.sh` checks them. `shared/analytics` validates product events and does not send them. `shared/routing/routes.ts` is the route table.
+`src/styles/tokens.css` and `public/logo*.svg` are copies of `design/`. `scripts/check-design-sync.sh` checks them. Light-theme accent is `#076E94`. Control borders use `--border-strong`. Body copy stays at least 14px. Risk marks use a shape as well as a color. Charts and the map have a "View as table" control. Focus is visible. Motion is removed when `prefers-reduced-motion` is set.
 
-Light-theme accent is for the wordmark only (large text). Links use the body text color.
+`src/lib/analytics` validates events and forwards them to PostHog only when both `NEXT_PUBLIC_POSTHOG_KEY` and `NEXT_PUBLIC_POSTHOG_HOST` are set. Autocapture, cookies, session replay, and question text are off.
 
 Do not render numbers from `design/html` or polygons from `design/src/distritos-sp.geojson`.
 
 ```bash
 pnpm --filter @ecoguard/web dev
+pnpm --filter @ecoguard/web test
+pnpm --filter @ecoguard/web generate:api
 ```
+
+`NEXT_PUBLIC_API_BASE_URL` defaults to `http://localhost:8000`. The API also allows `http://127.0.0.1:3000`. Development CSP adds `'unsafe-eval'` because the Next dev server compiles with `eval`. The production build does not.

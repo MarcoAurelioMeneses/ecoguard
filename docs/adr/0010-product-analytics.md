@@ -25,3 +25,7 @@ OpenTelemetry remains the trace, metric, and log path for the API and the worker
 - Screen placeholders already emit `screen_viewed` into the in-memory tracker, so the call sites exist before a vendor does.
 - A future SDK addition that posts raw questions will fail the banned-key check if it goes through `track`.
 - Self-hosting PostHog is an infrastructure milestone. It is not in `docker-compose.yml`.
+
+## Update
+
+The tracker still validates names, refuses personal-data keys, and does not set a cookie. Screens now emit `screen_viewed`, `map_layer_viewed`, `district_viewed`, and `analyst_question_asked` (length bucket only). If `NEXT_PUBLIC_POSTHOG_KEY` and `NEXT_PUBLIC_POSTHOG_HOST` are both set, the tracker loads `posthog-js` with memory persistence, autocapture off, and no session replay. `connect-src` includes that host. Without those variables it does not send a request.

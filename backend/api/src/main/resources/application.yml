@@ -1,3 +1,6 @@
+server:
+  port: ${SERVER_PORT:8000}
+
 spring:
   application:
     name: ecoguard-api
@@ -10,7 +13,8 @@ spring:
     locations: classpath:db/migration
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY:}
+      # Lets the process start with no key. The analyst bean stays off until OPENAI_API_KEY is set.
+      api-key: ${OPENAI_API_KEY:local-not-configured}
       chat:
         options:
           model: gpt-4o-mini
@@ -34,6 +38,7 @@ management:
       endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
 ecoguard:
   environment: ${ECOGUARD_ENVIRONMENT:local}
+  web-origin: ${ECOGUARD_WEB_ORIGIN:http://localhost:3000,http://127.0.0.1:3000}
   openai:
     api-key: ${OPENAI_API_KEY:}
   rate-limit:

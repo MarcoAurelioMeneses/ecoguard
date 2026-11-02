@@ -13,7 +13,7 @@ Conventions for EcoGuard. The layout and the reason for it are in `docs/architec
 | An analyst tool | `backend/agent` |
 | A screen | `frontend/features/<screen>` with `ui`, and `state` or `data` when they exist |
 | Shared theme, routes, analytics | `frontend/shared` |
-| SQL | `db/migrations` as the next number. Do not edit a migration that has already been applied in a shared database. This foundation has not been applied anywhere but a local volume |
+| SQL | `db/migration` as the next Flyway version. Do not edit a migration that has already been applied in a shared database. This repository has not been applied anywhere but a local volume |
 | Containers, CI | `infra/` and `.github/workflows` |
 | Threats, scanner rules | `security/` |
 | A decision that is hard to reverse | `docs/adr` |
@@ -22,7 +22,7 @@ Conventions for EcoGuard. The layout and the reason for it are in `docs/architec
 
 ## Dependencies
 
-Pass ports into use cases from `composition.py`. Do not construct a Postgres connection inside a use case. Do not call PostHog, OpenAI, or Langfuse from a feature component. Go through the analytics tracker or an adapter.
+Pass ports into use cases. Do not construct a Postgres connection inside a use case. Do not call PostHog, OpenAI, or Langfuse from a feature component. Go through the analytics tracker or an adapter.
 
 ## Data
 

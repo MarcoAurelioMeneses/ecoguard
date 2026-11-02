@@ -19,7 +19,7 @@ flowchart LR
   sources -->|"scheduled extract"| ecoguard
   ecoguard -->|"chat, later"| openai
   ecoguard -->|"LLM traces, later"| langfuse
-  ecoguard -->|"anonymous product events, later"| posthog
+  ecoguard -->|"anonymous product events, when configured"| posthog
 ```
 
 People read maps and ask questions. Publishers remain the source of record. The model is not a source of measurements. Product analytics must not receive personal data. See the LGPD note in `security/lgpd.md`.
@@ -31,7 +31,7 @@ Out of the MVP: other cities, streaming, accounts, email or SMS alerts, and trai
 ```mermaid
 flowchart TB
   subgraph clients
-    web["frontend<br/>Next.js + MapLibre, later"]
+    web["frontend<br/>Next.js + MapLibre"]
   end
 
   subgraph railway["Railway, planned, not created"]
@@ -50,68 +50,54 @@ flowchart TB
   workers -->|"bulky files, later"| storage
 ```
 
-| Container | This foundation | Later |
+| Container | This repository | Later |
 | --- | --- | --- |
-| `frontend/` | Theme, logo, route plan. `/` is screen 00 | Six designed screens plus 00, MapLibre |
-| `backend/` interfaces/http | `GET /health`, OpenAPI, rate limit, security headers | Read endpoints |
-| `backend/` interfaces/cli | InfoDengue and Open-Meteo | Remaining sources, score job |
-| `backend/agent` | Ports only. No model client | LangGraph on `ecoguard_agent` |
-| `db/` | Schemas, roles, agent views | Supabase project, district load |
+| `frontend/` | Screens 00–06. MapLibre reads `GET /districts`. Scores and alerts stay empty | Choropleth classes, alert feeds, nonce CSP |
+| `backend/api` | Health, OpenAPI, districts, risk config, analyst | Score and alert reads |
+| `backend/ingestion` | InfoDengue, Open-Meteo, GeoSampa districts | Remaining sources, score job |
+| `backend/agent` | Spring AI answer when a key is set. SQL limited to `agent` views | Langfuse traces |
+| `db/` | Schemas, roles, agent views. Districts load by the collector, not by a migration | Supabase project |
 | `infra/` | Local Postgres image and compose | Railway, when someone asks to deploy |
 
 Nothing in this repository creates a cloud resource.
 
 ## Backend shape
 
-The backend is a Gradle build. `domain` and `application` do not depend on Spring. Dependency direction is inward.
+Gradle modules: `domain`, `application`, `ingestion`, `api`, and `agent`. `domain` and `application` do not depend on Spring. See [ADR 0009](adr/0009-hexagonal-backend.md).
 
 ```mermaid
 flowchart TB
-  http["interfaces/http"] --> appn["application"]
-  cli["interfaces/cli"] --> composition["composition root"]
-  composition --> appn
-  composition --> adapters["adapters"]
-  appn --> ports["ports"]
+  api["api"] --> appn["application"]
+  ingest["ingestion"] --> appn
+  agent["agent"] --> appn
   appn --> domain["domain"]
-  adapters --> ports
-  adapters --> domain
-  http --> domain
+  ingest --> domain
+  api --> domain
 ```
 
-| Layer | May import | Must not import |
-| --- | --- | --- |
-| `domain`, `application` | the JDK and JTS | Spring, JDBC drivers, OpenAI |
-| `application` | domain, ports | the same frameworks |
-| `ports` | domain | adapters, frameworks |
-| `adapters` | ports, domain, drivers | nothing from `interfaces` |
-| `interfaces` | application, domain, composition | source SQL and HTTP clients directly |
-| `composition.py` | adapters and application | — |
+Ingestion is `RunIngestion`. A `SourcePort` returns domain records. The use case upserts `raw`, `staging`, and `marts.districts`, then writes `ops.job_runs`. Re-runs update the natural key. Use-case tests pass an in-memory store.
 
-`composition.py` is the only wiring point. Tests of a use case pass an in-memory store and a fake HTTP transport. A test under `backend/tests/test_boundaries.py` fails if `domain`, `application`, or `ports` import a framework.
-
-Ingestion is one use case: `run_ingestion`. A source adapter returns domain records. The use case upserts `raw` and `staging` and writes `ops.job_runs`. Re-runs update the natural key in place.
-
-The analyst package defines `RiskLookup`, `AllowlistedSql`, and `DocumentSearch`. No implementation is registered. SQL, when it exists, may read the `agent` schema only. Those views are the allowlist. The role has no grant on `raw`, `staging`, or base `marts` tables.
+The analyst answers `POST /analyst/questions` when `OPENAI_API_KEY` is set and returns 503 otherwise. SQL it is allowed to read is the `agent` schema. That role has no grant on `raw`, `staging`, or base `marts` tables.
 
 ## Frontend shape
 
-Features own a screen. Shared code is routing, analytics, and the theme.
+The folder rules, the DTO boundary, and the lint checks are in [frontend/ARCHITECTURE.md](../frontend/ARCHITECTURE.md). Routes in `frontend/src/app` only compose a screen. Feature code is `components`, `hooks`, `api`, and `model`. Shared controls live in `src/components/ui` and use design tokens. `fetch` stays in `src/lib/api`.
 
-| Route | Screen | State in this PR |
+| Route | Screen | State |
 | --- | --- | --- |
-| `/` | 00 What is EcoGuard | Placeholder. Entry. Links to the map and the analyst |
-| `/overview` | 01 Overview | Placeholder |
-| `/map` | 02 Risk map | Placeholder |
-| `/districts` | 03 District detail | Placeholder |
-| `/analyst` | 04 AI City Analyst | Placeholder |
-| `/alerts` | 05 Alerts | Placeholder |
-| `/sources` | 06 Sources and methodology | Placeholder |
+| `/` | 00 What is EcoGuard | Entry. Links to the map and the analyst |
+| `/overview` | 01 Overview | District count from the API. Score chart is an explicit no-data series, or a table |
+| `/map` | 02 Risk map | MapLibre polygons, dashed no-data outline, or a table |
+| `/districts` | 03 District detail | List and one district. Score mark is no-data |
+| `/analyst` | 04 AI City Analyst | AI tag, error disclaimer, feedback, regenerate |
+| `/alerts` | 05 Alerts | Empty. No example alerts |
+| `/sources` | 06 Sources and methodology | Weights from `/risk-config` |
 
 There is no observability screen. It was not designed.
 
-UI, client state, and server data stay apart: placeholders have no client store and no data fetch. When a screen is built, `features/<name>/ui` renders, `features/<name>/state` holds view state, and `features/<name>/data` calls the API. Shared analytics is a validated in-memory tracker until PostHog is configured.
+A screen component renders. Its hook calls that feature's `api` module, which maps DTOs from `src/lib/api`. Shared analytics validates events in memory and sends them to PostHog only when both public env vars are set.
 
-Light-theme accent (`#0A7EA8`) is about 4.3:1 on the page background. It is used only on the wordmark (24px, weight 600).
+Light-theme accent is `#076E94`. The wordmark uses it at 24px, weight 600. Control borders use `--border-strong`.
 
 ## Data flow
 
@@ -125,7 +111,7 @@ flowchart LR
   views --> analyst["ecoguard_agent, later"]
 ```
 
-`marts.districts` is empty. The only legal `source` value is `geosampa:wfs:geoportal:distrito_municipal`. The file `design/src/distritos-sp.geojson` is a 2016 dev fixture (`ds_codigo`, `ds_nome`, CRS84, repository `codigourbano/distritos-sp`). It is not loaded by the backend, the frontend, or the migrations.
+`marts.districts` starts empty. The job `geosampa-districts` upserts the 96 official features. The only legal `source` value is `geosampa:wfs:geoportal:distrito_municipal`. The file `design/src/distritos-sp.geojson` is a 2016 dev fixture (`ds_codigo`, `ds_nome`, CRS84, repository `codigourbano/distritos-sp`). It is not loaded by the backend, the frontend, or the migrations.
 
 `marts.risk_score_config` holds the confirmed weights 0.40, 0.35, and 0.25. They stay in that row so a change is data. `OverallWeights.combine` in the domain refuses a row that is not `status = confirmed`, and returns null if any pillar is missing.
 

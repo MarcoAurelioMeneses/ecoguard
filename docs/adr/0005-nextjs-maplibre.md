@@ -29,3 +29,7 @@ Mockup numbers, including the chip "Dados de exemplo", are not shown and are not
 - The next PR can implement screens from `design/html` against these tokens.
 - MapLibre, Recharts or ECharts, and the district GeoJSON endpoint are still to be added.
 - The 2016 simplified polygons baked into the design HTML are not reused as a map source.
+
+## Update
+
+2026-11-02, after this decision: MapLibre is installed and `/map` draws `GET /districts`. Screens 00–06 are implemented. Light-theme `--accent` is `#076E94`. Control borders use `--border-strong`. The sentences above that say the library is not installed, that routes are placeholders, and that the accent is `#0A7EA8` describe the foundation commit, not the current app. Score charts are still an explicit no-data state. The v0.2 audit images were not in the repo.

@@ -66,11 +66,25 @@ public final class Records {
     }
   }
 
+  public record District(
+      String code,
+      String name,
+      String abbreviation,
+      Integer subprefectureId,
+      Double areaKm2,
+      String wkt,
+      int sourceSrid,
+      Instant sourceUpdatedAt) {
+
+    public static final String OFFICIAL_SOURCE = "geosampa:wfs:geoportal:distrito_municipal";
+  }
+
   public record Extraction(
       String source,
       List<RawRecord> records,
       List<InfoDengueAlert> infoDengue,
-      List<OpenMeteoDaily> openMeteo) {}
+      List<OpenMeteoDaily> openMeteo,
+      List<District> districts) {}
 
   public record JobResult(
       String source, UUID runId, int extracted, int rawUpserted, int stagingUpserted) {}

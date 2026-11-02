@@ -1,5 +1,6 @@
 package com.ecoguard.ingestion.persistence;
 
+import com.ecoguard.domain.ingestion.Records.District;
 import com.ecoguard.domain.ingestion.Records.InfoDengueAlert;
 import com.ecoguard.domain.ingestion.Records.JobRun;
 import com.ecoguard.domain.ingestion.Records.OpenMeteoDaily;
@@ -88,6 +89,25 @@ public class JdbcIngestionStore implements IngestionStore {
         wind_speed_max_kmh = EXCLUDED.wind_speed_max_kmh,
         extracted_at = EXCLUDED.extracted_at,
         geom = EXCLUDED.geom,
+        loaded_at = now()
+      """;
+
+  private static final String DISTRICT =
+      """
+      INSERT INTO marts.districts (
+        district_code, name, abbreviation, subprefecture_id, area_km2, geom, source, source_updated_at)
+      VALUES (
+        :district_code, :name, :abbreviation, :subprefecture_id, :area_km2,
+        ST_Multi(ST_CollectionExtract(ST_MakeValid(ST_Transform(ST_SetSRID(ST_GeomFromText(:wkt), :srid), 4326)), 3)),
+        :source, :source_updated_at)
+      ON CONFLICT (district_code) DO UPDATE SET
+        name = EXCLUDED.name,
+        abbreviation = EXCLUDED.abbreviation,
+        subprefecture_id = EXCLUDED.subprefecture_id,
+        area_km2 = EXCLUDED.area_km2,
+        geom = EXCLUDED.geom,
+        source = EXCLUDED.source,
+        source_updated_at = EXCLUDED.source_updated_at,
         loaded_at = now()
       """;
 
@@ -181,6 +201,26 @@ public class JdbcIngestionStore implements IngestionStore {
   }
 
   @Override
+  public int upsertDistricts(List<District> districts) {
+    int written = 0;
+    for (District district : districts) {
+      written +=
+          jdbc.sql(DISTRICT)
+              .param("district_code", district.code())
+              .param("name", district.name())
+              .param("abbreviation", district.abbreviation())
+              .param("subprefecture_id", district.subprefectureId())
+              .param("area_km2", district.areaKm2())
+              .param("wkt", district.wkt())
+              .param("srid", district.sourceSrid())
+              .param("source", District.OFFICIAL_SOURCE)
+              .param("source_updated_at", timestamp(district.sourceUpdatedAt()))
+              .update();
+    }
+    return written;
+  }
+
+  @Override
   public void recordRun(JobRun run) {
     jdbc.sql(RUN)
         .param("run_id", run.runId())
@@ -196,7 +236,7 @@ public class JdbcIngestionStore implements IngestionStore {
   }
 
   private static Timestamp timestamp(Instant instant) {
-    return Timestamp.from(instant);
+    return instant == null ? null : Timestamp.from(instant);
   }
 
   private static PGobject jsonb(String json) {

@@ -1,17 +1,18 @@
-/* EcoGuard design tokens v0.1 — tema escuro é o padrão; adicione a classe .light no <body>/<html> para o tema claro */
+/* EcoGuard tokens. Dark is the default. Add class .light on html for the light theme.
+   Light accent #076E94 is the v0.2 value (large text and controls on a surface). */
 :root{
-  --bg:#0B1014; --surface:#121A21; --elev:#19232C; --border:#243039;
+  --bg:#0B1014; --surface:#121A21; --elev:#19232C; --border:#243039; --border-strong:#3D5160;
   --text:#E6EDF3; --muted:#8B9AA7; --accent:#38BDF8; --accent-bg:rgba(56,189,248,.12);
-  --baixo:#3FB68B; --moderado:#F2C94C; --alto:#F2994A; --critico:#E5484D;       /* preenchimentos (mapa, barras) */
-  --t-baixo:#3FB68B; --t-moderado:#F2C94C; --t-alto:#F2994A; --t-critico:#FF6B6F; /* texto/borda de badge */
+  --baixo:#3FB68B; --moderado:#F2C94C; --alto:#F2994A; --critico:#E5484D;
+  --t-baixo:#3FB68B; --t-moderado:#F2C94C; --t-alto:#F2994A; --t-critico:#FF6B6F;
   --mapstroke:#0B1014; --nodata:#1F2B35;
   --radius-card:14px; --radius-chip:999px; --radius-ctl:10px;
   --gap:22px; --pad-content:36px; --sidebar:292px; --topbar:88px;
   --font-ui:'Inter',system-ui,sans-serif; --font-num:'JetBrains Mono',ui-monospace,monospace;
 }
 .light{
-  --bg:#F4F7F9; --surface:#FFFFFF; --elev:#EEF3F6; --border:#D5DEE5;
-  --text:#0E1A24; --muted:#556574; --accent:#0A7EA8; --accent-bg:rgba(10,126,168,.10);
+  --bg:#F4F7F9; --surface:#FFFFFF; --elev:#EEF3F6; --border:#D5DEE5; --border-strong:#6E8494;
+  --text:#0E1A24; --muted:#556574; --accent:#076E94; --accent-bg:rgba(7,110,148,.10);
   --t-baixo:#1B7A58; --t-moderado:#80620A; --t-alto:#AE5208; --t-critico:#C0272D;
   --mapstroke:#FFFFFF; --nodata:#E3EAEF;
 }
