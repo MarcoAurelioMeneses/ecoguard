@@ -1,6 +1,6 @@
 # EcoGuard
 
-City risk intelligence for São Paulo: environmental, health, and social public data at district grain where the source allows it, and an AI City Analyst that cites sources and dates. This repository is the foundation. The screens are designed and not built. Nothing here is deployed.
+City risk intelligence for São Paulo: environmental, health, and social public data at district grain where the source allows it, and an AI City Analyst that cites sources and dates. Screens 00–06 read the API. Scores, alerts, and several sources are still empty on purpose. Nothing here is deployed.
 
 ## Layout
 
@@ -31,7 +31,8 @@ Detail is in [docs/data-sources.md](docs/data-sources.md).
 | Source | Result of the check on 2026-11-02 |
 | --- | --- |
 | InfoDengue, Open-Meteo | Anonymous JSON works. Workers included |
-| GeoSampa districts, INPE 10-minute CSV, IBGE SIDRA table 4709 | Anonymous access works. Not loaded |
+| GeoSampa districts | Anonymous WFS works. Collector `geosampa-districts` loads the 96 features. Migrations do not seed them |
+| INPE 10-minute CSV, IBGE SIDRA table 4709 | Anonymous access works. Not loaded |
 | INMET | Station list works. Hourly observations did not |
 | CETESB QUALAR | Login-gated. No public API |
 | CEMADEN | HTML download form. No anonymous API verified |
@@ -50,6 +51,7 @@ docker compose -f infra/docker-compose.yml up -d --build --wait
 ./backend/gradlew -p backend :api:bootRun
 ./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=infodengue'
 ./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=open-meteo'
+./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=geosampa-districts'
 pnpm --filter @ecoguard/web dev
 ```
 
@@ -68,14 +70,13 @@ make test
 
 ## Next milestones
 
-1. Load GeoSampa `distrito_municipal` into `marts.districts`. Do not import the 2016 fixture.
-2. Ingest INPE hotspots and IBGE census tracts joined to those districts. Resolve an INMET token before that worker.
-3. Decide whether CETESB and CEMADEN credentials will exist. Until then those indicators stay null.
-4. Confirm a live DataSUS DBC download, then a municipal respiratory series.
-5. Compute scores from `marts.risk_score_config` only. Sub-weights in the methodology are still a draft.
-6. Read API for districts, scores, and freshness.
-7. Build screens 00–06 from `design/html` on the routes that already exist. No observability page until it is designed.
-8. LangGraph analyst on the agent views, with the SQL guard, Langfuse, and OpenTelemetry.
-9. Self-hosted PostHog, cookieless or consent-based, wired to the existing event taxonomy. No question text.
-10. Replace the in-process rate limit when the API runs as more than one process. Replace `'unsafe-inline'` in the web CSP with nonces.
+1. Ingest INPE hotspots and IBGE census tracts joined to the GeoSampa districts. Resolve an INMET token before that worker.
+2. Decide whether CETESB and CEMADEN credentials will exist. Until then those indicators stay null.
+3. Confirm a live DataSUS DBC download, then a municipal respiratory series.
+4. Compute scores from `marts.risk_score_config` only. Sub-weights in the methodology are still a draft. Then color the choropleth by class, still with a shape and a table.
+5. Read API for scores, alerts, and freshness. The district and risk-config reads exist.
+6. Finish screens 00–06 against the v0.2 mockups and the UI audit when that package is in the repo. No observability page until it is designed.
+7. Langfuse and the remaining agent traces. The analyst endpoint exists and returns 503 without `OPENAI_API_KEY`.
+8. Self-hosted PostHog. The web tracker already refuses personal data and stays off until both public env vars are set.
+9. Replace the in-process rate limit when the API runs as more than one process. Replace `'unsafe-inline'` in the web CSP with nonces.
 11. Deploy only when asked.

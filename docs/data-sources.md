@@ -37,6 +37,8 @@ Endpoint (one feature, JSON):
 
 Store geometries as EPSG:4326 after `ST_Transform`. Record `source = geosampa:wfs:geoportal:distrito_municipal`. The check constraint on `marts.districts` allows only that label.
 
+The collector `geosampa-districts` requests `srsName=EPSG:4326` and `outputFormat=application/json`. A live feature on 2026-11-02 returned a GeoJSON polygon whose first coordinate was about `-46.76, -23.55` (longitude, latitude) and CRS `urn:ogc:def:crs:EPSG::4326`. The parser treats a CRS name ending in `4326` or containing `CRS84` as SRID 4326 and otherwise assumes the layer default, EPSG:31983. It refuses any count other than 96. The upsert is idempotent on `district_code`. Migrations do not insert districts.
+
 The design package includes `design/src/distritos-sp.geojson`. It is a **2016** extract from `codigourbano/distritos-sp` (properties `ds_codigo`, `ds_nome`, `ds_sigla`, CRS84), which `design-system.md` identifies as an older GeoSampa dump. `design/src/data.py` loads it to draw mockups. That is the only allowed use: a dev fixture for regenerating the design images. It is not ingested, not copied into `frontend/public`, and not a MapLibre source. The database check constraint rejects that source label.
 
 IBGE "distrito" (Censo 2022 mesh `SP_distritos_CD2022.gpkg` on GeoFTP) is a different partition. It must not be swapped in for the 96 PMSP districts.

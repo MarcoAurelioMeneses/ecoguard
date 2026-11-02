@@ -14,6 +14,7 @@ format:
 
 test:
 	./backend/gradlew -p backend test
+	pnpm --filter @ecoguard/web test
 
 db-up:
 	docker compose -f infra/docker-compose.yml up -d --build --wait

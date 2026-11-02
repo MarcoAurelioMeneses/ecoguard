@@ -2,7 +2,9 @@ package com.ecoguard.api.security;
 
 import java.time.Instant;
 import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -13,15 +15,33 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Configuration
 public class ApiSecurity {
   @Bean
   SecurityFilterChain securityFilterChain(
-      HttpSecurity http, @Value("${ecoguard.rate-limit.requests:120}") int limit) throws Exception {
+      HttpSecurity http,
+      @Value("${ecoguard.rate-limit.requests:120}") int limit,
+      @Value("${ecoguard.web-origin:http://localhost:3000}") String webOrigin)
+      throws Exception {
     SlidingWindow limiter = new SlidingWindow(limit, 60);
+    CorsConfigurationSource cors =
+        request -> {
+          CorsConfiguration configuration = new CorsConfiguration();
+          configuration.setAllowedOrigins(
+              Arrays.stream(webOrigin.split(","))
+                  .map(String::trim)
+                  .filter(origin -> !origin.isEmpty())
+                  .toList());
+          configuration.setAllowedMethods(List.of("GET", "POST"));
+          configuration.setAllowedHeaders(List.of("Content-Type"));
+          return configuration;
+        };
     return http.csrf(AbstractHttpConfigurer::disable)
+        .cors(config -> config.configurationSource(cors))
         .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
         .headers(
             headers ->

@@ -2,6 +2,7 @@ package com.ecoguard.application;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import com.ecoguard.domain.ingestion.Records.District;
 import com.ecoguard.domain.ingestion.Records.Extraction;
 import com.ecoguard.domain.ingestion.Records.InfoDengueAlert;
 import com.ecoguard.domain.ingestion.Records.JobRun;
@@ -52,7 +53,7 @@ class RunIngestionTest {
 
           @Override
           public Extraction extract(Instant extractedAt) {
-            return new Extraction("infodengue", List.of(raw), List.of(row), List.of());
+            return new Extraction("infodengue", List.of(raw), List.of(row), List.of(), List.of());
           }
         };
     MemoryStore store = new MemoryStore();
@@ -82,6 +83,11 @@ class RunIngestionTest {
     @Override
     public int upsertOpenMeteo(List<OpenMeteoDaily> rows) {
       return rows.size();
+    }
+
+    @Override
+    public int upsertDistricts(List<District> districts) {
+      return districts.size();
     }
 
     @Override

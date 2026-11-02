@@ -1,5 +1,6 @@
 package com.ecoguard.domain.port;
 
+import com.ecoguard.domain.ingestion.Records.District;
 import com.ecoguard.domain.ingestion.Records.Extraction;
 import com.ecoguard.domain.ingestion.Records.InfoDengueAlert;
 import com.ecoguard.domain.ingestion.Records.JobRun;
@@ -18,6 +19,8 @@ public final class Ports {
     int upsertInfoDengue(List<InfoDengueAlert> rows);
 
     int upsertOpenMeteo(List<OpenMeteoDaily> rows);
+
+    int upsertDistricts(List<District> districts);
 
     void recordRun(JobRun run);
   }

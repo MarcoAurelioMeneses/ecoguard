@@ -1,0 +1,97 @@
+{
+  "openapi": "3.0.1",
+  "info": { "title": "EcoGuard API", "version": "0.1.0" },
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "health",
+        "responses": { "200": { "description": "Liveness" } }
+      }
+    },
+    "/districts": {
+      "get": {
+        "operationId": "listDistricts",
+        "responses": {
+          "200": {
+            "description": "Districts",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/FeatureCollection" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/districts/{code}": {
+      "get": {
+        "operationId": "getDistrict",
+        "parameters": [{ "name": "code", "in": "path", "required": true, "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "One district" }, "404": { "description": "Missing" } }
+      }
+    },
+    "/risk-config": {
+      "get": {
+        "operationId": "riskConfig",
+        "responses": {
+          "200": {
+            "description": "Confirmed weights",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/RiskConfig" } }
+            }
+          }
+        }
+      }
+    },
+    "/analyst/questions": {
+      "post": {
+        "operationId": "askAnalyst",
+        "responses": { "200": { "description": "Answer" }, "503": { "description": "Model unavailable" } }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "FeatureCollection": {
+        "type": "object",
+        "required": ["type", "features"],
+        "properties": {
+          "type": { "type": "string" },
+          "features": { "type": "array", "items": { "$ref": "#/components/schemas/Feature" } }
+        }
+      },
+      "Feature": {
+        "type": "object",
+        "required": ["type", "properties"],
+        "properties": {
+          "type": { "type": "string" },
+          "properties": { "$ref": "#/components/schemas/DistrictProperties" },
+          "geometry": { "type": "object", "additionalProperties": true }
+        }
+      },
+      "DistrictProperties": {
+        "type": "object",
+        "required": ["code", "name", "source"],
+        "properties": {
+          "code": { "type": "string" },
+          "name": { "type": "string" },
+          "abbreviation": { "type": "string", "nullable": true },
+          "subprefectureId": { "type": "integer", "nullable": true },
+          "areaKm2": { "type": "number", "nullable": true },
+          "source": { "type": "string" },
+          "sourceUpdatedAt": { "type": "string", "format": "date-time", "nullable": true }
+        }
+      },
+      "RiskConfig": {
+        "type": "object",
+        "required": ["environmental", "health", "social", "status"],
+        "properties": {
+          "environmental": { "type": "number" },
+          "health": { "type": "number" },
+          "social": { "type": "number" },
+          "status": { "type": "string" }
+        }
+      }
+    }
+  }
+}
