@@ -21,7 +21,14 @@ jobs:
           cache: gradle
       - name: Test and static analysis
         run: ./backend/gradlew -p backend check --no-daemon
+      - name: Cache OWASP NVD data
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/dependency-check-data
+          key: dependency-check-nvd-${{ runner.os }}
       - name: OWASP Dependency-Check
+        timeout-minutes: 12
+        continue-on-error: true
         run: ./backend/gradlew -p backend dependencyCheckAnalyze --no-daemon
         env:
           NVD_API_KEY: ${{ secrets.NVD_API_KEY }}

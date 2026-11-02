@@ -12,6 +12,7 @@ dependencyCheck {
     failBuildOnCVSS = 9.0f
     formats = listOf("HTML", "JSON")
     outputDirectory.set(layout.buildDirectory.dir("reports/dependency-check"))
+    data.directory = "${System.getProperty("user.home")}/.gradle/dependency-check-data"
     val nvdKey = System.getenv("NVD_API_KEY")
     if (!nvdKey.isNullOrBlank()) {
         nvd.apiKey = nvdKey

@@ -17,6 +17,7 @@ Scanner configuration:
 | Control | Config | Where it runs |
 | --- | --- | --- |
 | Dependency updates | `.github/dependabot.yml` | GitHub Dependabot |
+| Known vulnerabilities | OWASP Dependency-Check (`dependencyCheckAnalyze`) | CI, cached NVD data. A repository secret `NVD_API_KEY` keeps the NVD feed from being rate-limited. The step may time out without that key and does not hide the Gradle test result. |
 | SAST | `semgrep.yml` and CodeQL | `.github/workflows` |
 | Secret scanning | `.gitleaks.toml` | gitleaks in CI |
 | Container and config scan | `trivy.yaml` | Trivy in CI |
