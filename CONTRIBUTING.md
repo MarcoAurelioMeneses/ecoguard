@@ -1,0 +1,46 @@
+# Contributing
+
+Conventions for EcoGuard. The layout and the reason for it are in `docs/architecture.md`.
+
+## Where a change goes
+
+| Change | Directory |
+| --- | --- |
+| A score rule, a record, an event name | `backend/src/ecoguard/domain` |
+| A use case | `backend/src/ecoguard/application` |
+| A port | `backend/src/ecoguard/ports` |
+| HTTP client, SQL, settings | `backend/src/ecoguard/adapters` |
+| FastAPI route or the worker CLI | `backend/src/ecoguard/interfaces` |
+| Wiring | `backend/src/ecoguard/composition.py` |
+| A screen | `frontend/features/<screen>` with `ui`, and `state` or `data` when they exist |
+| Shared theme, routes, analytics | `frontend/shared` |
+| SQL | `db/migrations` as the next number. Do not edit a migration that has already been applied in a shared database. This foundation has not been applied anywhere but a local volume |
+| Containers, CI | `infra/` and `.github/workflows` |
+| Threats, scanner rules | `security/` |
+| A decision that is hard to reverse | `docs/adr` |
+
+`domain`, `application`, and `ports` do not import FastAPI, httpx, psycopg, pydantic, or a model SDK. `backend/tests/test_boundaries.py` enforces that.
+
+## Dependencies
+
+Pass ports into use cases from `composition.py`. Do not construct a Postgres connection inside a use case. Do not call PostHog, OpenAI, or Langfuse from a feature component. Go through the analytics tracker or an adapter.
+
+## Data
+
+- Confirmed overall weights are 0.40, 0.35, and 0.25. Change them in `marts.risk_score_config`, not in a second constant in the UI.
+- Do not seed mockup numbers.
+- Do not load `design/src/distritos-sp.geojson` into PostGIS or the map. It is the 2016 `codigourbano/distritos-sp` extract (`ds_codigo`, `ds_nome`, CRS84), kept so the design scripts can be re-run. Ingestion uses the current GeoSampa WFS layer `geoportal:distrito_municipal`.
+- Screen 00 is the web root, `/`.
+
+## Checks
+
+```bash
+make lint
+make test
+```
+
+CI also runs gitleaks, semgrep, Trivy, and CodeQL. Do not commit secrets. The local database password is allowlisted in `security/.gitleaks.toml` and must not be copied into a deployment.
+
+## Language
+
+Code, commits, and documents in this repository are English. The design originals in `design/` stay in the language they were delivered in.

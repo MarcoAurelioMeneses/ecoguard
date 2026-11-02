@@ -1,0 +1,77 @@
+# Owned by infra/. GitHub Actions only loads workflows from .github/workflows.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+          enable-cache: true
+      - name: Install Python packages
+        run: uv sync --all-packages --group dev
+      - name: Ruff
+        run: uv run ruff check .
+      - name: Ruff format
+        run: uv run ruff format --check .
+      - name: Mypy
+        run: uv run mypy
+      - name: Postgres with PostGIS and pgvector
+        run: docker compose -f infra/docker-compose.yml up -d --build --wait
+      - name: Pytest
+        run: uv run pytest
+        env:
+          ECOGUARD_DATABASE_URL: postgresql://ecoguard:ecoguard@localhost:5432/ecoguard
+          CI: "true"
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Design sync
+        run: ./scripts/check-design-sync.sh
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Build placeholder
+        run: pnpm --filter @ecoguard/web build
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_CONFIG: security/.gitleaks.toml
+      - name: Semgrep
+        run: pip install semgrep && semgrep scan --config security/semgrep.yml --error --metrics=off
+      - name: Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          trivy-config: security/trivy.yaml

@@ -1,0 +1,114 @@
+@import "../shared/styles/tokens.css";
+
+/*
+  Light-theme --accent (#0A7EA8) is about 4.3:1 on --bg (#F4F7F9).
+  Use it only for large text (24px regular, or 18.67px bold). The wordmark
+  accent is 24px / 600. Body copy and links stay on --text.
+*/
+
+:root {
+  --font-ui: var(--font-inter), "Inter", system-ui, sans-serif;
+  --font-num: var(--font-mono), "JetBrains Mono", ui-monospace, monospace;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+}
+
+body {
+  min-height: 100vh;
+}
+
+.shell {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.card {
+  width: min(560px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 28px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand img {
+  width: 48px;
+  height: 48px;
+}
+
+.logo-light {
+  display: none;
+}
+
+.light .logo-dark {
+  display: none;
+}
+
+.light .logo-light {
+  display: block;
+}
+
+.wordmark {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.wordmark-accent {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.lede {
+  margin: 18px 0 0;
+  font-size: 17px;
+  line-height: 1.45;
+}
+
+.meta {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.meta a {
+  color: var(--text);
+}
+
+.theme-toggle {
+  margin-top: 22px;
+  min-height: 36px;
+  padding: 8px 14px;
+  border-radius: var(--radius-ctl);
+  border: 1px solid var(--border);
+  background: var(--elev);
+  color: var(--text);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.theme-toggle:focus-visible,
+.meta a:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}

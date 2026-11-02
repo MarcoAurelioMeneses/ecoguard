@@ -1,0 +1,9 @@
+title = "EcoGuard"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Local compose database password. It is not a production secret."
+regexTarget = "line"
+regexes = ['''ecoguard:ecoguard''', '''POSTGRES_PASSWORD: ecoguard''']
