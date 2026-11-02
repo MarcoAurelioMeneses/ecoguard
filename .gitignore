@@ -1,13 +1,12 @@
-# Python
-.venv/
+# Java
+.gradle/
+build/
+out/
+
+# Python leftovers from design generators only
 __pycache__/
 *.py[cod]
-.mypy_cache/
-.ruff_cache/
 .pytest_cache/
-*.egg-info/
-dist/
-build/
 
 # Secrets and local env
 .env
@@ -19,6 +18,10 @@ node_modules/
 .next/
 out/
 *.tsbuildinfo
+
+# Gradle
+.gradle/
+**/build/
 
 # Local data
 .pgdata/

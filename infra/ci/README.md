@@ -4,7 +4,7 @@ GitHub Actions loads workflow files only from `.github/workflows`. Those files a
 
 | Workflow | What it runs |
 | --- | --- |
-| `ci.yml` | ruff, mypy, pytest against PostGIS, web lint and build, gitleaks, semgrep, Trivy |
+| `ci.yml` | Gradle check (JUnit, Spotless, Checkstyle, SpotBugs, JaCoCo), OWASP Dependency-Check, web lint and build, gitleaks, semgrep, Trivy |
 | `codeql.yml` | CodeQL for Python and JavaScript |
 
 Dependabot is `.github/dependabot.yml`. Scanner rules are under `security/`.

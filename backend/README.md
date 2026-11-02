@@ -1,20 +1,25 @@
 # Backend
 
-API, ingestion workers, and the analyst boundary. One package, `ecoguard`, in hexagonal layers. See `docs/architecture.md` and `docs/adr/0009-hexagonal-backend.md`.
+Java 21, Spring Boot 3.5, Gradle Kotlin DSL. One hexagonal build, four modules plus the use-case module.
 
-```text
-src/ecoguard/domain        records, weights, analytics event names
-src/ecoguard/application   ingest, health, rate limit
-src/ecoguard/ports         store, source, analytics
-src/ecoguard/adapters      HTTP sources, Postgres, memory, settings
-src/ecoguard/interfaces    FastAPI and the worker CLI
-src/ecoguard/agent         tool ports only; no model client
-src/ecoguard/composition.py
-```
+| Module | Role |
+| --- | --- |
+| `domain` | Records, weights, JTS points, analytics names, ports. No Spring. |
+| `application` | `RunIngestion`. No Spring. |
+| `ingestion` | InfoDengue and Open-Meteo collectors, JDBC upserts, Flyway, scheduled entrypoint |
+| `api` | Spring Web, springdoc, Spring Security, validation, rate limit |
+| `agent` | Spring AI tools over `agent` views, `gpt-4o-mini` when `OPENAI_API_KEY` is set |
 
 ```bash
-uv run uvicorn ecoguard.interfaces.http.app:app --app-dir backend/src --port 8000
-uv run python -m ecoguard.interfaces.cli infodengue --dry-run
+./gradlew check
+./gradlew :api:bootRun
+./gradlew :ingestion:bootRun --args='--ecoguard.job=infodengue'
 ```
 
-The analyst must use the `ecoguard_agent` role and the `agent` views. Do not add an OpenAI client in this package until the controls in `security/llm-top10.md` are implemented with it.
+From the repository root, prefix with `./backend/gradlew -p backend`.
+
+ErrorProne is optional: `./gradlew check -Perrorprone=true`. SpotBugs runs on `domain` and `application`. Spotless formats Java. JaCoCo writes reports under each module `build/reports/jacoco`. OWASP Dependency-Check is `dependencyCheckAnalyze` and runs in CI.
+
+Collectors are covered with WireMock. The JDBC upsert test uses Testcontainers and `infra/postgres/Dockerfile` (PostGIS and pgvector). It runs when Docker is available.
+
+The analyst SQL tool allows one `SELECT` that mentions `agent.` and then `SET LOCAL ROLE ecoguard_agent`. Document search orders `agent.documents` by pgvector distance. The model is not called in tests.

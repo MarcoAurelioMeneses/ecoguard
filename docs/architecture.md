@@ -35,7 +35,7 @@ flowchart TB
   end
 
   subgraph railway["Railway, planned, not created"]
-    api["backend HTTP interface<br/>FastAPI"]
+    api["backend HTTP interface<br/>Spring Boot"]
     workers["backend CLI<br/>cron"]
   end
 
@@ -63,7 +63,7 @@ Nothing in this repository creates a cloud resource.
 
 ## Backend shape
 
-The backend is one Python package, `ecoguard`, with hexagonal layers. Dependency direction is inward.
+The backend is a Gradle build. `domain` and `application` do not depend on Spring. Dependency direction is inward.
 
 ```mermaid
 flowchart TB
@@ -80,7 +80,7 @@ flowchart TB
 
 | Layer | May import | Must not import |
 | --- | --- | --- |
-| `domain` | stdlib | FastAPI, httpx, psycopg, pydantic, OpenAI |
+| `domain`, `application` | the JDK and JTS | Spring, JDBC drivers, OpenAI |
 | `application` | domain, ports | the same frameworks |
 | `ports` | domain | adapters, frameworks |
 | `adapters` | ports, domain, drivers | nothing from `interfaces` |

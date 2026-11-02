@@ -1,4 +1,9 @@
 rules:
+  - id: ecoguard-no-runtime-exec
+    languages: [java]
+    severity: ERROR
+    message: Do not shell out from the application.
+    pattern: Runtime.getRuntime().exec(...)
   - id: ecoguard-no-eval
     languages: [python]
     severity: ERROR

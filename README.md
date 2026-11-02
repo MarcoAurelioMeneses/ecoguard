@@ -6,7 +6,7 @@ City risk intelligence for São Paulo: environmental, health, and social public 
 
 | Path | What it is |
 | --- | --- |
-| [backend/](backend/README.md) | API, workers, analyst ports. Hexagonal package `ecoguard` |
+| [backend/](backend/README.md) | Java 21, Spring Boot 3, Gradle. API, collectors, analyst |
 | [frontend/](frontend/README.md) | Next.js. `/` is screen 00, What is EcoGuard |
 | [infra/](infra/README.md) | Local PostGIS image and compose. Railway is documented, not applied |
 | [security/](security/README.md) | STRIDE, ASVS L2 target, LLM risks, LGPD, scanners |
@@ -41,18 +41,19 @@ Health series that work are municipal, not district. The methodology says so ins
 
 ## Run locally
 
-Requirements: Python 3.12, uv, Node 22, pnpm 10, Docker.
+Requirements: Java 21, Node 22, pnpm 10, Docker.
 
 ```bash
 cp .env.example .env
-uv sync --all-packages --group dev
 pnpm install
 docker compose -f infra/docker-compose.yml up -d --build --wait
-uv run uvicorn ecoguard.interfaces.http.app:app --app-dir backend/src --reload --port 8000
-uv run python -m ecoguard.interfaces.cli infodengue
-uv run python -m ecoguard.interfaces.cli open-meteo
+./backend/gradlew -p backend :api:bootRun
+./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=infodengue'
+./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=open-meteo'
 pnpm --filter @ecoguard/web dev
 ```
+
+Flyway applies `db/migration` when the API or the ingestion process starts. The ingestion command runs one collector and then the process exits if that is all it was asked to do; leave `ECOGUARD_JOB` unset to keep the process up without a one-shot run.
 
 The database password in compose is for that local container only. More steps are in [docs/runbooks/local-development.md](docs/runbooks/local-development.md).
 

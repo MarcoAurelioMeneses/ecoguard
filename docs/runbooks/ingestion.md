@@ -16,9 +16,8 @@ A second run with the same payload does not write a new raw row. A changed forec
 ## Commands
 
 ```bash
-export ECOGUARD_DATABASE_URL=postgresql://ecoguard:ecoguard@localhost:5432/ecoguard
-uv run python -m ecoguard.interfaces.cli infodengue
-uv run python -m ecoguard.interfaces.cli open-meteo
+./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=infodengue'
+./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=open-meteo'
 ```
 
 InfoDengue defaults to São Paulo (`3550308`), disease `dengue`, and the previous calendar year through the current one, one HTTP request per year. Open-Meteo defaults to the city reference point `-23.5505, -46.6333`, timezone `America/Sao_Paulo`, seven forecast days, location id `sp-city-reference`.

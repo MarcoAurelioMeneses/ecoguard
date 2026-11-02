@@ -11,12 +11,12 @@ EcoGuard ships one product with four kinds of code that must stay in step: a typ
 
 Keep a single git repository.
 
-- `backend/` — Python package, managed with uv
+- `backend/` — Java modules, managed with Gradle
 - `frontend/` — Next.js application, managed with pnpm
 - `db/migrations` — ordered SQL, applied by Postgres on first container start and by `scripts/apply-migrations.sh`
 - `infra/`, `security/`, `docs/`, and `design/` — operations, security, architecture, and the design source of truth
 
-Python uses a uv workspace at the repository root. JavaScript uses a pnpm workspace that contains `frontend`. Design files stay in `design/` and are copied into the web app only when the UI must serve them (`tokens.css`, logo SVGs). A CI diff keeps those copies identical. Directory names were refined in ADR 0008. The monorepo decision is unchanged.
+Java uses Gradle under `backend/`. JavaScript uses a pnpm workspace that contains `frontend`. Design files stay in `design/` and are copied into the web app only when the UI must serve them (`tokens.css`, logo SVGs). A CI diff keeps those copies identical. Directory names were refined in ADR 0008. The monorepo decision is unchanged.
 
 ## Consequences
 

@@ -1,6 +1,6 @@
 # Database
 
-Ordered SQL in `migrations/`. A new change is a new file. The baseline creates:
+Ordered Flyway SQL in `migration/` (`V1__...` through `V11__...`). A new change is the next version. The API and the ingestion process apply them on startup. `scripts/apply-migrations.sh` applies the same files with `psql` when you want the schema before either process. The baseline creates:
 
 - extensions `postgis` and `vector`
 - schemas `raw`, `staging`, `marts`, `ops`, and `agent`

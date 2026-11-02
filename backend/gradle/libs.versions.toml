@@ -1,0 +1,38 @@
+[versions]
+java = "21"
+spring-boot = "3.5.16"
+dependency-management = "1.1.7"
+spring-ai = "1.1.8"
+springdoc = "2.8.14"
+flyway = "11.11.0"
+testcontainers = "1.21.4"
+wiremock = "3.13.1"
+jts = "1.20.0"
+spotless = "8.9.0"
+spotbugs = "6.5.13"
+errorprone-plugin = "4.1.0"
+errorprone = "2.36.0"
+checkstyle = "10.21.4"
+jacoco = "0.8.13"
+
+[libraries]
+spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
+spring-ai-bom = { module = "org.springframework.ai:spring-ai-bom", version.ref = "spring-ai" }
+springdoc = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+flyway-core = { module = "org.flywaydb:flyway-core", version.ref = "flyway" }
+flyway-database-postgresql = { module = "org.flywaydb:flyway-database-postgresql", version.ref = "flyway" }
+postgresql = { module = "org.postgresql:postgresql" }
+jts-core = { module = "org.locationtech.jts:jts-core", version.ref = "jts" }
+spring-ai-openai = { module = "org.springframework.ai:spring-ai-starter-model-openai" }
+testcontainers-junit = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
+testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
+wiremock = { module = "org.wiremock:wiremock-standalone", version.ref = "wiremock" }
+errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
+
+[plugins]
+spring-boot = { id = "org.springframework.boot", version.ref = "spring-boot" }
+dependency-management = { id = "io.spring.dependency-management", version.ref = "dependency-management" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+spotbugs = { id = "com.github.spotbugs", version.ref = "spotbugs" }
+errorprone = { id = "net.ltgt.errorprone", version.ref = "errorprone-plugin" }
+dependency-check = { id = "org.owasp.dependencycheck", version = "12.2.2" }

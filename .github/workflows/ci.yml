@@ -10,29 +10,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  python:
+  java:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/setup-uv@v5
+      - uses: actions/setup-java@v4
         with:
-          python-version: "3.12"
-          enable-cache: true
-      - name: Install Python packages
-        run: uv sync --all-packages --group dev
-      - name: Ruff
-        run: uv run ruff check .
-      - name: Ruff format
-        run: uv run ruff format --check .
-      - name: Mypy
-        run: uv run mypy
-      - name: Postgres with PostGIS and pgvector
-        run: docker compose -f infra/docker-compose.yml up -d --build --wait
-      - name: Pytest
-        run: uv run pytest
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+      - name: Test and static analysis
+        run: ./backend/gradlew -p backend check --no-daemon
+      - name: OWASP Dependency-Check
+        run: ./backend/gradlew -p backend dependencyCheckAnalyze --no-daemon
         env:
-          ECOGUARD_DATABASE_URL: postgresql://ecoguard:ecoguard@localhost:5432/ecoguard
-          CI: "true"
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 
   web:
     runs-on: ubuntu-latest

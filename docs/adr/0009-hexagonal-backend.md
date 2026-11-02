@@ -5,15 +5,13 @@
 
 ## Context
 
-The API, the workers, and the future analyst share records, weights, and the rule that a source fetch must not know how a row is stored. FastAPI, httpx, and psycopg are delivery and driver choices. They should be replaceable without rewriting the score rule or the upsert use case.
+The API, the collectors, and the analyst share records, weights, and the rule that a source fetch must not know how a row is stored. Spring, RestClient, and JDBC are delivery and driver choices. They should be replaceable without rewriting the score rule or the upsert use case.
 
 ## Decision
 
-One package, `ecoguard`, with `domain`, `application`, `ports`, `adapters`, `interfaces`, and a `composition` root. The analyst lives in `ecoguard.agent` as ports only until a graph is built.
+Gradle modules under `backend/`: `domain` (model and ports), `application` (use cases), `ingestion` (collectors and JDBC), `api` (HTTP), and `agent` (Spring AI tools). `domain` and `application` do not depend on Spring.
 
-The ingestion use case depends on `SourcePort` and `IngestionStore`. InfoDengue and Open-Meteo are adapters. Postgres and the in-memory store are adapters. CLI and HTTP are interfaces. Tests of the use case do not open a socket and do not import FastAPI.
-
-A unit test rejects framework imports inside `domain`, `application`, and `ports`.
+The ingestion use case depends on `SourcePort` and `IngestionStore`. InfoDengue and Open-Meteo are collectors. Postgres is the JDBC adapter. HTTP is the `api` module. Tests of the use case do not open a socket.
 
 ## Consequences
 

@@ -6,12 +6,11 @@ Conventions for EcoGuard. The layout and the reason for it are in `docs/architec
 
 | Change | Directory |
 | --- | --- |
-| A score rule, a record, an event name | `backend/src/ecoguard/domain` |
-| A use case | `backend/src/ecoguard/application` |
-| A port | `backend/src/ecoguard/ports` |
-| HTTP client, SQL, settings | `backend/src/ecoguard/adapters` |
-| FastAPI route or the worker CLI | `backend/src/ecoguard/interfaces` |
-| Wiring | `backend/src/ecoguard/composition.py` |
+| A score rule, a record, an event name, a port | `backend/domain` |
+| A use case | `backend/application` |
+| A collector or JDBC upsert | `backend/ingestion` |
+| An HTTP route | `backend/api` |
+| An analyst tool | `backend/agent` |
 | A screen | `frontend/features/<screen>` with `ui`, and `state` or `data` when they exist |
 | Shared theme, routes, analytics | `frontend/shared` |
 | SQL | `db/migrations` as the next number. Do not edit a migration that has already been applied in a shared database. This foundation has not been applied anywhere but a local volume |
@@ -19,7 +18,7 @@ Conventions for EcoGuard. The layout and the reason for it are in `docs/architec
 | Threats, scanner rules | `security/` |
 | A decision that is hard to reverse | `docs/adr` |
 
-`domain`, `application`, and `ports` do not import FastAPI, httpx, psycopg, pydantic, or a model SDK. `backend/tests/test_boundaries.py` enforces that.
+`domain` and `application` do not depend on Spring. Collectors, JDBC, and the HTTP API stay in their modules.
 
 ## Dependencies
 

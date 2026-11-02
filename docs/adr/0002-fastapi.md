@@ -1,25 +1,21 @@
-# ADR 0002 — FastAPI for the HTTP API
+# ADR 0002 — Spring Boot for the HTTP API
 
 - Status: accepted
 - Date: 2026-11-02
+- Supersedes the earlier FastAPI choice. The backend is Java.
 
 ## Context
 
-The API must be typed, publish an OpenAPI document, and later host a LangGraph analyst next to ordinary JSON endpoints (district scores, freshness, alerts). Readers are unauthenticated in the MVP. Writes from the public internet are out of scope.
+The API must be typed, publish an OpenAPI document, and later host the city analyst next to ordinary JSON endpoints. Readers are unauthenticated in the MVP. Writes from the public internet are out of scope.
 
 ## Decision
 
-Use FastAPI on Python 3.12 with Pydantic response models. Settings come from `pydantic-settings` and the `ECOGUARD_` environment prefix. This foundation exposes:
+Use Java 21 and Spring Boot 3 on the `api` module. springdoc publishes `/openapi.json` and `/docs`. Spring Security sets headers and a content security policy and permits the public reads. Bean validation covers the analyst question body. Settings come from the environment.
 
-- `GET /health` — process liveness
-- `GET /` — pointers to health and the OpenAPI document
-- `/openapi.json` and `/docs` — generated schema
-
-The app is created in `create_app()` so tests do not depend on a developer `.env`.
+This foundation exposes `GET /health`, `GET /`, and `POST /analyst/questions`. The analyst answers only when `OPENAI_API_KEY` is set. Otherwise the route returns 503.
 
 ## Consequences
 
-- OpenAPI stays aligned with the Python types instead of a hand-written spec.
-- The analyst can live in the same process later and share settings, logging, and the read-only database role.
-- Rate limiting, CORS, and auth are not pretending to exist. They will be added when a browser client on another origin calls the API. Permissive CORS is intentionally absent.
-- The web placeholder does not call the API yet.
+- OpenAPI stays aligned with the controller types.
+- The analyst module is on the API classpath and uses the same security filter chain.
+- A replicated API still needs a shared rate limiter. The current limiter is in-process.

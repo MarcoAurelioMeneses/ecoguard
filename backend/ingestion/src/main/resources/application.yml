@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: ecoguard-ingestion
+  datasource:
+    url: ${ECOGUARD_JDBC_URL:jdbc:postgresql://localhost:5432/ecoguard}
+    username: ${ECOGUARD_DB_USER:ecoguard}
+    password: ${ECOGUARD_DB_PASSWORD:ecoguard}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  tracing:
+    sampling:
+      probability: 1.0
+  otlp:
+    tracing:
+      export:
+        enabled: ${OTEL_EXPORT_ENABLED:false}
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
+ecoguard:
+  job: ${ECOGUARD_JOB:}
+  infodengue:
+    base-url: https://info.dengue.mat.br/api/alertcity
+    geocode: 3550308
+    disease: dengue
+    week-start: 1
+    week-end: 53
+  open-meteo:
+    base-url: https://api.open-meteo.com/v1/forecast
+    api-key: ${ECOGUARD_OPEN_METEO_API_KEY:}
+    latitude: -23.5505
+    longitude: -46.6333
+    timezone: America/Sao_Paulo
+    forecast-days: 7
+    location-id: sp-city-reference

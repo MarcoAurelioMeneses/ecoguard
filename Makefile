@@ -1,23 +1,19 @@
 .PHONY: install lint format test db-up db-down
 
 install:
-	uv sync --all-packages --group dev
 	pnpm install
 
 lint:
-	uv run ruff check .
-	uv run ruff format --check .
-	uv run mypy
+	./backend/gradlew -p backend check
 	pnpm lint
 	pnpm typecheck
 	./scripts/check-design-sync.sh
 
 format:
-	uv run ruff check . --fix
-	uv run ruff format .
+	./backend/gradlew -p backend spotlessApply
 
 test:
-	uv run pytest
+	./backend/gradlew -p backend test
 
 db-up:
 	docker compose -f infra/docker-compose.yml up -d --build --wait

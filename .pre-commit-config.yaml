@@ -1,24 +1,14 @@
 repos:
   - repo: local
     hooks:
-      - id: ruff
-        name: ruff
-        entry: uv run ruff check
-        language: system
-        types: [python]
-      - id: ruff-format
-        name: ruff format
-        entry: uv run ruff format --check
-        language: system
-        types: [python]
-      - id: mypy
-        name: mypy
-        entry: uv run mypy
+      - id: spotless
+        name: spotless
+        entry: ./backend/gradlew -p backend spotlessCheck --no-daemon
         language: system
         pass_filenames: false
-        types: [python]
+        types_or: [java, kotlin]
       - id: design-sync
-        name: design tokens and logos match apps/web
+        name: design tokens and logos match the frontend
         entry: ./scripts/check-design-sync.sh
         language: system
         pass_filenames: false

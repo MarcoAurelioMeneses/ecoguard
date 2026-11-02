@@ -2,11 +2,10 @@
 
 ## Install
 
-Requirements: Python 3.12, uv, Node 22, pnpm 10, Docker with Compose.
+Requirements: Java 21, Node 22, pnpm 10, Docker with Compose.
 
 ```bash
 cp .env.example .env
-uv sync --all-packages --group dev
 pnpm install
 docker compose -f infra/docker-compose.yml up -d --build --wait
 ```
@@ -28,20 +27,18 @@ docker compose -f infra/docker-compose.yml down -v
 
 ## Processes
 
-API:
+API (Flyway runs on startup):
 
 ```bash
-uv run uvicorn ecoguard.interfaces.http.app:app --app-dir backend/src --reload --port 8000
+./backend/gradlew -p backend :api:bootRun
 ```
 
-Workers:
+One collector:
 
 ```bash
-uv run python -m ecoguard.interfaces.cli infodengue
-uv run python -m ecoguard.interfaces.cli open-meteo
+./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=infodengue'
+./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=open-meteo'
 ```
-
-`--dry-run` uses the in-memory store and still calls the public API.
 
 Web:
 
@@ -58,4 +55,4 @@ make lint
 make test
 ```
 
-`make test` skips the Postgres tests unless `ECOGUARD_DATABASE_URL` is set. CI sets it and fails if the variable is missing.
+`make test` runs Gradle. The JDBC Testcontainers test runs when Docker is available, which it is in CI.
