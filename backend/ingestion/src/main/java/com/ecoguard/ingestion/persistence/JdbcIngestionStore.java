@@ -5,7 +5,9 @@ import com.ecoguard.domain.ingestion.Records.JobRun;
 import com.ecoguard.domain.ingestion.Records.OpenMeteoDaily;
 import com.ecoguard.domain.ingestion.Records.RawRecord;
 import com.ecoguard.domain.port.Ports.IngestionStore;
+import java.sql.SQLException;
 import java.util.List;
+import org.postgresql.util.PGobject;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +16,7 @@ public class JdbcIngestionStore implements IngestionStore {
   private static final String RAW =
       """
       INSERT INTO raw.source_payloads (source, external_key, payload, payload_sha256, extracted_at)
-      VALUES (:source, :external_key, CAST(:payload AS jsonb), :payload_sha256, :extracted_at)
+      VALUES (:source, :external_key, :payload, :payload_sha256, :extracted_at)
       ON CONFLICT (source, external_key) DO UPDATE
       SET payload = EXCLUDED.payload,
           payload_sha256 = EXCLUDED.payload_sha256,
@@ -111,7 +113,7 @@ public class JdbcIngestionStore implements IngestionStore {
           jdbc.sql(RAW)
               .param("source", record.source())
               .param("external_key", record.externalKey())
-              .param("payload", PayloadHasher.json(record.payload()))
+              .param("payload", jsonb(PayloadHasher.json(record.payload())))
               .param("payload_sha256", PayloadHasher.sha256(record.payload()))
               .param("extracted_at", record.extractedAt())
               .update();
@@ -189,5 +191,16 @@ public class JdbcIngestionStore implements IngestionStore {
         .param("staging_upserted_count", run.stagingUpsertedCount())
         .param("error", run.error())
         .update();
+  }
+
+  private static PGobject jsonb(String json) {
+    try {
+      PGobject value = new PGobject();
+      value.setType("jsonb");
+      value.setValue(json);
+      return value;
+    } catch (SQLException ex) {
+      throw new IllegalArgumentException("payload is not jsonb", ex);
+    }
   }
 }
