@@ -1,0 +1,9 @@
+{
+  "name": "ecoguard",
+  "private": true,
+  "packageManager": "pnpm@10.33.4",
+  "scripts": {
+    "lint": "pnpm -r --if-present lint",
+    "typecheck": "pnpm -r --if-present typecheck"
+  }
+}

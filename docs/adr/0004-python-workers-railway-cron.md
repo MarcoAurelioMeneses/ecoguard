@@ -1,0 +1,32 @@
+# ADR 0004 — Java collectors invoked by cron
+
+- Status: accepted
+- Date: 2026-11-02
+
+## Context
+
+Each publisher has its own cadence, from 10-minute fire detections to a decennial census. The MVP does not need a stream processor or a resident queue. Jobs must be testable without the network and safe to run twice.
+
+The planned host is Railway cron. This PR does not create a Railway project or a schedule.
+
+## Decision
+
+Ingestion is the `RunIngestion` use case, called from a Spring Boot process. A collector extracts. The use case always does three steps:
+
+1. `extract` — HTTP (or, later, a file download) into in-memory records
+2. `load_raw` — upsert `raw.source_payloads` on `(source, external_key)`
+3. `load_staging` — upsert the typed staging table on its natural key
+
+A run record is committed to `ops.job_runs` after a successful commit, or after a rollback if the write fails. Extract failures never leave a partial batch committed.
+
+The reference jobs are InfoDengue (dengue, municipality of São Paulo, epidemiological weeks) and Open-Meteo (daily forecast for one city reference coordinate). Both are idempotent: a second run with the same keys updates rows in place.
+
+Jobs are `./gradlew :ingestion:bootRun --args='--ecoguard.job=infodengue'`. Cron will call that command. HTTP is Spring `RestClient`. Tests use WireMock. Live calls are not part of the test suite. JDBC upserts are tested with Testcontainers when Docker is available.
+
+## Consequences
+
+- A new source is a collector that implements `SourcePort`. The use case owns the upserts. Spring Batch is the next step when a source is a large file, not for these two HTTP jobs.
+- Railway cron is a thin scheduler. The job does not import a Railway SDK.
+- Long historical backfills are a loop of the same upsert, not a second code path.
+- In-process pandas or polars transforms can sit between extract and staging later without changing the schema boundary.
+- There is no queue, retry broker, or distributed lock yet. Cron intervals must be longer than a normal run, and the upsert makes overlap safe for these two sources.

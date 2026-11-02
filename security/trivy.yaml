@@ -1,0 +1,12 @@
+severity:
+  - CRITICAL
+exit-code: 1
+ignore-unfixed: true
+scanners:
+  - vuln
+  - misconfig
+skip-dirs:
+  - design
+  - .venv
+  - node_modules
+  - frontend/node_modules

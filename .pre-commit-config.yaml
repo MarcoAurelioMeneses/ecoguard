@@ -1,0 +1,15 @@
+repos:
+  - repo: local
+    hooks:
+      - id: spotless
+        name: spotless
+        entry: ./backend/gradlew -p backend spotlessCheck --no-daemon
+        language: system
+        pass_filenames: false
+        types_or: [java, kotlin]
+      - id: design-sync
+        name: design tokens and logos match the frontend
+        entry: ./scripts/check-design-sync.sh
+        language: system
+        pass_filenames: false
+        always_run: true

@@ -1,0 +1,33 @@
+# Java
+.gradle/
+build/
+out/
+
+# Python leftovers from design generators only
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Secrets and local env
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+
+# Gradle
+.gradle/
+**/build/
+
+# Local data
+.pgdata/
+*.log
+
+# Editors
+.idea/
+.vscode/
+.DS_Store
