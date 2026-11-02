@@ -1,4 +1,4 @@
-FROM postgres:16-bookworm
+FROM postgres:18-bookworm
 
 USER root
 RUN apt-get update \
