@@ -6,6 +6,8 @@ import com.ecoguard.domain.ingestion.Records.OpenMeteoDaily;
 import com.ecoguard.domain.ingestion.Records.RawRecord;
 import com.ecoguard.domain.port.Ports.IngestionStore;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.Instant;
 import java.util.List;
 import org.postgresql.util.PGobject;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -115,7 +117,7 @@ public class JdbcIngestionStore implements IngestionStore {
               .param("external_key", record.externalKey())
               .param("payload", jsonb(PayloadHasher.json(record.payload())))
               .param("payload_sha256", PayloadHasher.sha256(record.payload()))
-              .param("extracted_at", record.extractedAt())
+              .param("extracted_at", timestamp(record.extractedAt()))
               .update();
     }
     return written;
@@ -145,7 +147,7 @@ public class JdbcIngestionStore implements IngestionStore {
               .param("municipality_name", row.municipalityName())
               .param("model_version", row.modelVersion())
               .param("source_record_id", row.sourceRecordId())
-              .param("extracted_at", row.extractedAt())
+              .param("extracted_at", timestamp(row.extractedAt()))
               .update();
     }
     return written;
@@ -172,7 +174,7 @@ public class JdbcIngestionStore implements IngestionStore {
               .param("precipitation_sum_mm", row.precipitationSumMm())
               .param("precipitation_hours", row.precipitationHours())
               .param("wind_speed_max_kmh", row.windSpeedMaxKmh())
-              .param("extracted_at", row.extractedAt())
+              .param("extracted_at", timestamp(row.extractedAt()))
               .update();
     }
     return written;
@@ -184,13 +186,17 @@ public class JdbcIngestionStore implements IngestionStore {
         .param("run_id", run.runId())
         .param("source", run.source())
         .param("status", run.status())
-        .param("started_at", run.startedAt())
-        .param("finished_at", run.finishedAt())
+        .param("started_at", timestamp(run.startedAt()))
+        .param("finished_at", timestamp(run.finishedAt()))
         .param("extracted_count", run.extractedCount())
         .param("raw_upserted_count", run.rawUpsertedCount())
         .param("staging_upserted_count", run.stagingUpsertedCount())
         .param("error", run.error())
         .update();
+  }
+
+  private static Timestamp timestamp(Instant instant) {
+    return Timestamp.from(instant);
   }
 
   private static PGobject jsonb(String json) {
