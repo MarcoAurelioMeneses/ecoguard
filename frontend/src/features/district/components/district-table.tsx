@@ -26,7 +26,8 @@ export function DistrictTable({ districts }: { districts: District[] }) {
             <td className="num">{district.code}</td>
             <td className="num">{district.areaKm2 ?? "—"}</td>
             <td>
-              <RiskMark level={district.score?.overallClass ?? "nodata"} />
+              <RiskMark level={district.score?.overallClass ?? "nodata"} />{" "}
+              <span className="num">{district.score?.overall?.toFixed(1) ?? "—"}</span>
             </td>
           </tr>
         ))}

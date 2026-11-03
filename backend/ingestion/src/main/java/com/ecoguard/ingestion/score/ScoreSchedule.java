@@ -7,16 +7,17 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 @Configuration
 @EnableScheduling
-@ConditionalOnProperty(prefix = "ecoguard.score", name = "cron")
+@ConditionalOnProperty(prefix = "ecoguard.schedule", name = "cron")
 public class ScoreSchedule {
-  private final ScoreJob job;
+  private final com.ecoguard.ingestion.job.BackfillJob backfill;
 
-  public ScoreSchedule(ScoreJob job) {
-    this.job = job;
+  public ScoreSchedule(com.ecoguard.ingestion.job.BackfillJob backfill) {
+    this.backfill = backfill;
   }
 
-  @Scheduled(cron = "${ecoguard.score.cron}", zone = "America/Sao_Paulo")
+  /** Runs the same collectors as a one-shot backfill, for the configured day window. */
+  @Scheduled(cron = "${ecoguard.schedule.cron}", zone = "America/Sao_Paulo")
   public void nightly() {
-    job.run();
+    backfill.run();
   }
 }

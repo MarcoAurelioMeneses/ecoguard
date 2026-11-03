@@ -11,6 +11,7 @@ export type DistrictScore = {
   dengue: number | null;
   environmentalCoverage: number | null;
   healthCoverage: number | null;
+  socialCoverage: number | null;
   environmentalClass: RiskClass;
   healthClass: RiskClass;
   socialClass: RiskClass;

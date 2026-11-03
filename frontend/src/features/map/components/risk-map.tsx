@@ -64,8 +64,9 @@ export function RiskMap({ districts }: { districts: District[] }) {
         <ViewToggle table={table} graphicLabel="Map" onChange={setTable} />
       </div>
       <p className="meta">
-        Scores are not computed yet. Every district is shown as no data, with a dashed outline so the state is
-        not color alone.
+        {districts.some((district) => district.score?.overall != null)
+          ? "Color is the overall class. Each pillar is published after 50% coverage, with the present indicator weights renormalized. Missing coverage stays in the district note."
+          : "Scores are not computed yet. Every district is shown as no data, with a dashed outline so the state is not color alone."}
       </p>
       {table ? (
         <DistrictTable districts={districts} />
