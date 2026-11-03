@@ -9,13 +9,13 @@ Mockup lag labels ("Atualizado há 2 h", and the hour estimates in the design sy
 | Source | Programmatic access | Grain for São Paulo | Flag |
 | --- | --- | --- | --- |
 | InfoDengue | Yes. Public JSON/CSV, no key. Worker implemented. | Municipality × epidemiological week. Not district. | Usable. Revised nowcast. |
-| Open-Meteo | Yes. Public JSON, no key on the free tier. Worker implemented. | One forecast grid cell for a city reference point. Not district. Not observations. | Free tier is non-commercial. |
+| Open-Meteo | Yes. Public JSON, no key on the free tier. City reference and per-district workers. | Forecast and air-quality grid cell at each district point-on-surface. Not a station observation. | Free tier is non-commercial. CC BY 4.0. |
 | INMET | Partial. Station catalog is anonymous. Observations were not reliably downloadable. | Automatic stations (points). Two operating stations in the capital. | Do not build the worker until a tokened pull succeeds. |
 | CETESB QUALAR | No anonymous API. Login-gated web app and CSV export. | Air-quality stations (points), hourly. | **Not programmatically accessible** without an account and an unofficial client. |
 | INPE BDQueimadas | Yes. HTTPS CSV tree, no key. | Point hotspots. 10-minute files have no municipality column. | Usable. Spatial join required. Not a stable REST contract. |
 | CEMADEN | No anonymous API verified. Download page is an HTML form. | Gauges and alerts, not districts. | **Not programmatically accessible** for anonymous ingestion. |
 | DataSUS SIH | File-based (DBC on the DATASUS file server). Live fetch **not confirmed** (timeout). OpenDataSUS CKAN API was not available. | Hospital admission, municipality of residence, month. Not district. | Programmatic in principle, unconfirmed live, not a JSON API. |
-| IBGE Censo 2022 / SIDRA | Yes for published aggregates. SIDRA HTTP API answered. `servicodados` v3 timed out. | Municipality for the verified population table. IBGE districts ≠ the 96 PMSP districts. | Usable at municipal grain. District figures need a spatial join of census tracts onto GeoSampa. |
+| IBGE Censo 2022 / SIDRA | Yes for published aggregates. SIDRA HTTP API answered. District universe CSVs are the district grain. | Municipality on SIDRA N6. The 96 PMSP districts come from the official “Agregados por distrito” zips, name-matched to GeoSampa. | Income is not in that release. Density and sewer network are. |
 | IBGE malhas | Municipal mesh API exists in the official docs. Census-tract and IBGE-district meshes are GeoFTP files (GeoPackage HEAD returned 200). | Not the PMSP district layer. | Do not use IBGE district meshes as the choropleth. |
 | GeoSampa | Yes. Public WFS, no key. | **96 municipal districts.** This is the choropleth. | Use the live WFS. Do not use the 2016 GeoJSON. |
 
@@ -83,7 +83,7 @@ The worker asks for `-23.5505, -46.6333` (city reference near the historic centr
 
 Variables stored: `weather_code`, `temperature_2m_max`, `temperature_2m_min`, `precipitation_sum`, `precipitation_hours`, `wind_speed_10m_max`.
 
-District forecasts, if added later, should pass district centroids explicitly. Do not repeat the city cell 96 times and call it a district forecast.
+The score job does not repeat the city cell. `open-meteo-districts` requests each district point-on-surface (`ST_PointOnSurface`) in batches, for the forecast and for the air-quality API. The city-reference series remains a separate location and is not the map value. Attribution: "Weather data by Open-Meteo.com" and "Air quality data by Open-Meteo.com", both CC BY 4.0.
 
 ## INMET
 
@@ -116,7 +116,7 @@ BDMEP (`https://bdmep.inmet.gov.br/`) is an email-and-queue CSV workflow, not an
 | Grain | Station point inside and around the city. Not district. A district value needs a documented spatial rule (nearest station or interpolation). |
 | Classification | From 2026-01-08, QUALAR classifies even historical hours with the CONAMA 506/2024 limits that took effect on 2026-01-01. Do not mix old and new index legends without labeling the rule. |
 
-**Flag: not programmatically accessible** for this project until Marco has a QUALAR account and accepts the unofficial client (or CETESB offers a real API). Do not scrape the login in this repository. Air quality cannot honestly feed the environmental score before that decision.
+**Flag: not programmatically accessible** for this project until Marco has a QUALAR account and accepts the unofficial client (or CETESB offers a real API). Do not scrape the login in this repository. The environmental score uses Open-Meteo PM2.5 at the district point instead, and the catalog labels that as a model grid, not a CETESB station.
 
 ## INPE BDQueimadas
 
@@ -180,7 +180,7 @@ Limitations that change the score: SUS-funded admissions only; a long stay can p
 | Update | Census 2022 is a stock. IBGE publishes revisions; it is not a weekly feed. |
 | Grain | The verified table is the **municipality**. Several rendimento tables that were probed (7435, 7395, 7531) answered **400** "Parâmetro N6 incompatível com a tabela", so a table number is not enough: the territorial level has to be checked. Income at district grain is not a single SIDRA call. |
 
-**Flag:** municipal aggregates are accessible. The 96-district social layer is **not** a direct SIDRA pull. Build it by joining census tracts to the GeoSampa polygons, or by using a PMSP table that is already published at district grain (Infocidade / GeoSampa), and record which one.
+**Flag:** municipal aggregates are accessible on SIDRA. The 96-district social layer is the official Censo 2022 “Agregados por distrito” CSV (population, area, occupied households, sewer network), matched to GeoSampa by normalized name. It is not a SIDRA N6 call and not the IBGE district mesh. Income is absent from that universe.
 
 InfoDengue's `pop` on the verified week was about 12.2 million. That is their denominator. The census resident population is 11,451,999. Keep both, labeled.
 

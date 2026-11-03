@@ -18,7 +18,10 @@ public final class ComputeRiskScores {
   public int execute(
       Readings readings,
       Writer writer,
-      Instant computedAt, String configKey, int geocode, String disease) {
+      Instant computedAt,
+      String configKey,
+      int geocode,
+      String disease) {
     OverallWeights weights = readings.weights(configKey);
     DengueReading dengue = readings.latestDengue(geocode, disease);
     List<PersistedScore> rows = new ArrayList<>();
@@ -59,11 +62,13 @@ public final class ComputeRiskScores {
   }
 
   private static String grain(DayScore day) {
-    return "environmental=city Open-Meteo forecast, coverage "
+    return "environmental=Open-Meteo forecast and PM2.5 at the district point, INPE hotspots inside the polygon, coverage "
         + day.environmental().coverage()
         + "; health=municipal InfoDengue, coverage "
         + day.health().coverage()
-        + "; social=no ingested source; missing="
+        + "; social=IBGE Censo 2022 district density and sewer network, coverage "
+        + day.social().coverage()
+        + "; missing="
         + String.join(",", day.environmental().missing())
         + ","
         + String.join(",", day.health().missing())
