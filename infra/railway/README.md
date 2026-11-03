@@ -1,16 +1,12 @@
-# Railway — planned, not applied
+# Railway
 
-Do not run `railway up` from this repository. No project, service, or variable is created here.
+Service definitions for a deploy you create yourself. The runbook is [DEPLOY.md](DEPLOY.md). Nothing in this directory creates a Railway project, service, or variable.
 
-When a deploy is requested, the intended services are:
+| Path | Service |
+| --- | --- |
+| `postgres/railway.json` | Postgres 18 + PostGIS + pgvector, image `infra/postgres/Dockerfile`, volume `/var/lib/postgresql` |
+| `api/railway.json` | API. The only Flyway runner. `GET /health` |
+| `ingestion/railway.json` | Cron backfill and score job. Flyway off. No public port |
+| `frontend/railway.json` | Next.js. `GET /health` |
 
-| Service | Process | Notes |
-| --- | --- | --- |
-| `api` | `java -jar ecoguard-api.jar` | Health check `GET /health` |
-| `worker-infodengue` | `java -jar ecoguard-ingestion.jar --ecoguard.job=infodengue` | Cron, weekly |
-| `worker-open-meteo` | `java -jar ecoguard-ingestion.jar --ecoguard.job=open-meteo` | Cron, several times a day |
-| `web` | `frontend` Next.js | CSP and analytics host must be set together |
-
-The database stays on Supabase, not on a Railway Postgres, so PostGIS and pgvector stay on the managed instance that matches `db/migration`. Secrets are Railway variables, the same names as `.env.example`, with real values only in the dashboard.
-
-Open-Meteo’s free tier is non-commercial. A public commercial deploy needs their customer host and a key.
+Root directory for every service is the repository root.

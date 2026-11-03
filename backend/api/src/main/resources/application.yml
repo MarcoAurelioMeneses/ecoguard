@@ -1,5 +1,6 @@
 server:
-  port: ${SERVER_PORT:8000}
+  # Railway injects PORT. SERVER_PORT remains the local override.
+  port: ${PORT:${SERVER_PORT:8000}}
 
 spring:
   application:

@@ -8,6 +8,7 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  output: "standalone",
   reactStrictMode: true,
   images: {
     dangerouslyAllowSVG: true,
