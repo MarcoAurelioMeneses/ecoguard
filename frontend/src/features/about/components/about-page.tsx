@@ -3,7 +3,6 @@ import Link from "next/link";
 export function AboutPage() {
   return (
     <section className="stack">
-      <h1>What EcoGuard is</h1>
       <p>
         City risk intelligence for São Paulo. It combines public environmental, health, and social data at
         district grain, where the source actually has that grain, with an AI City Analyst that has to cite its

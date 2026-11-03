@@ -22,7 +22,9 @@ overall(d, t) = 0.40 * environmental(d, t)
 
 The weights live in `marts.risk_score_config` under `config_key = 'default'`, `status = 'confirmed'`. They sum to 1 (enforced by a check constraint). Changing them is an update to that row, not a code change and not a second copy in the frontend. The methodology page must read the same row the job uses. A different row can be inserted later; only a row the job is told to read affects scores.
 
-`marts.district_risk_scores` is empty. A score row records the `config_key` it was computed with.
+`marts.district_risk_scores` is filled by the `risk-scores` job. A row records the `config_key` it was computed with. Open-Meteo supplies a city-reference heat and rain forecast. InfoDengue supplies one municipal dengue score broadcast to every district. Air quality, fire, respiratory hospitalizations, and both social indicators are missing, so those pillars are partial or null and `overall` stays null. Coverage and the missing list are stored on the row. Re-running the same date updates the current row and appends `marts.district_risk_score_history`.
+
+Schedule it on the ingestion process with `ECOGUARD_SCORE_CRON` (Spring cron, `America/Sao_Paulo`), for example `0 0 6 * * *`. Unset, the job runs only when asked.
 
 If any pillar is null, `overall` is null. The map class for a null score is "sem dado", not a zero and not an interpolated colour.
 

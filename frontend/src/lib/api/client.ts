@@ -1,5 +1,5 @@
 import type { operations } from "./generated";
-import type { AnalystAnswerDto, FeatureCollectionDto, RiskConfigDto } from "./dto";
+import type { AnalystAnswerDto, CityScoresDto, FeatureCollectionDto, RiskConfigDto } from "./dto";
 
 type Listed = operations["listDistricts"]["responses"][200]["content"]["application/json"];
 type Configured = operations["riskConfig"]["responses"][200]["content"]["application/json"];
@@ -23,6 +23,7 @@ export const http = {
   getDistrict: (code: string) =>
     getJson<FeatureCollectionDto["features"][number]>(`/districts/${encodeURIComponent(code)}`),
   riskConfig: () => getJson<Configured>("/risk-config") as Promise<RiskConfigDto>,
+  scoreSummary: () => getJson<CityScoresDto>("/scores/summary"),
   askAnalyst: async (question: string): Promise<AnalystAnswerDto> => {
     const response = await fetch(`${apiBaseUrl()}/analyst/questions`, {
       method: "POST",

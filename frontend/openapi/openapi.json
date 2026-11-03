@@ -43,6 +43,19 @@
         }
       }
     },
+    "/scores/summary": {
+      "get": {
+        "operationId": "scoreSummary",
+        "responses": {
+          "200": {
+            "description": "Latest broadcast scores and the daily series",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/CityScores" } }
+            }
+          }
+        }
+      }
+    },
     "/analyst/questions": {
       "post": {
         "operationId": "askAnalyst",
@@ -79,7 +92,51 @@
           "subprefectureId": { "type": "integer", "nullable": true },
           "areaKm2": { "type": "number", "nullable": true },
           "source": { "type": "string" },
-          "sourceUpdatedAt": { "type": "string", "format": "date-time", "nullable": true }
+          "sourceUpdatedAt": { "type": "string", "format": "date-time", "nullable": true },
+          "score": { "$ref": "#/components/schemas/ScoreSnapshot" }
+        }
+      },
+      "ScoreSnapshot": {
+        "type": "object",
+        "properties": {
+          "scoreDate": { "type": "string", "format": "date" },
+          "environmental": { "type": "number", "nullable": true },
+          "health": { "type": "number", "nullable": true },
+          "social": { "type": "number", "nullable": true },
+          "overall": { "type": "number", "nullable": true },
+          "heat": { "type": "number", "nullable": true },
+          "rain": { "type": "number", "nullable": true },
+          "dengue": { "type": "number", "nullable": true },
+          "environmentalCoverage": { "type": "number", "nullable": true },
+          "healthCoverage": { "type": "number", "nullable": true },
+          "environmentalClass": { "type": "string" },
+          "healthClass": { "type": "string" },
+          "socialClass": { "type": "string" },
+          "overallClass": { "type": "string" },
+          "environmentalComplete": { "type": "boolean" },
+          "healthComplete": { "type": "boolean" },
+          "socialComplete": { "type": "boolean" },
+          "grainNote": { "type": "string", "nullable": true }
+        }
+      },
+      "SeriesPoint": {
+        "type": "object",
+        "required": ["scoreDate"],
+        "properties": {
+          "scoreDate": { "type": "string", "format": "date" },
+          "heat": { "type": "number", "nullable": true },
+          "rain": { "type": "number", "nullable": true },
+          "dengue": { "type": "number", "nullable": true },
+          "environmental": { "type": "number", "nullable": true },
+          "health": { "type": "number", "nullable": true }
+        }
+      },
+      "CityScores": {
+        "type": "object",
+        "required": ["series"],
+        "properties": {
+          "latest": { "$ref": "#/components/schemas/ScoreSnapshot" },
+          "series": { "type": "array", "items": { "$ref": "#/components/schemas/SeriesPoint" } }
         }
       },
       "RiskConfig": {

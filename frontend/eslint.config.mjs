@@ -1,11 +1,6 @@
-import { dirname } from "node:path";
-import { fileURLToPath } from "node:url";
-import { FlatCompat } from "@eslint/eslintrc";
+import nextCore from "eslint-config-next/core-web-vitals";
+import nextTs from "eslint-config-next/typescript";
 import prettier from "eslint-config-prettier";
-
-const compat = new FlatCompat({
-  baseDirectory: dirname(fileURLToPath(import.meta.url)),
-});
 
 const fetchBan = {
   selector: "CallExpression[callee.name='fetch']",
@@ -16,7 +11,8 @@ const eslintConfig = [
   {
     ignores: ["next-env.d.ts", ".next/**", "src/lib/api/generated.ts", "public/maplibre-gl-worker.mjs"],
   },
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...nextCore,
+  ...nextTs,
   {
     files: ["src/components/ui/**/*.{ts,tsx}"],
     rules: {

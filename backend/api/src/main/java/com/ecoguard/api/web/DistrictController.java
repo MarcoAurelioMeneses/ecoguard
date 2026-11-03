@@ -42,6 +42,11 @@ public class DistrictController {
     return districts.riskConfig();
   }
 
+  @GetMapping("/scores/summary")
+  public DistrictReadModel.CityScores scores() {
+    return districts.cityScores();
+  }
+
   private Feature feature(DistrictView district) {
     JsonNode geometry;
     try {
@@ -58,7 +63,8 @@ public class DistrictController {
             district.subprefectureId(),
             district.areaKm2(),
             district.source(),
-            district.sourceUpdatedAt()),
+            district.sourceUpdatedAt(),
+            district.score()),
         geometry);
   }
 
@@ -73,5 +79,6 @@ public class DistrictController {
       Integer subprefectureId,
       Double areaKm2,
       String source,
-      Instant sourceUpdatedAt) {}
+      Instant sourceUpdatedAt,
+      DistrictReadModel.ScoreSnapshot score) {}
 }

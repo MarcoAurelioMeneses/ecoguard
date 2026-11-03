@@ -11,6 +11,7 @@ const district = (coordinates: number[][]): District => ({
   source: "geosampa:wfs:geoportal:distrito_municipal",
   sourceUpdatedAt: null,
   geometry: { type: "Polygon", coordinates: [coordinates] },
+  score: null,
 });
 
 describe("boundsOf", () => {

@@ -20,8 +20,24 @@ export function useDistricts() {
   }, []);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    let live = true;
+    listDistricts()
+      .then((districts) => {
+        if (!live) {
+          return;
+        }
+        setState(districts.length === 0 ? { status: "empty" } : { status: "ready", data: districts });
+      })
+      .catch((error: unknown) => {
+        if (!live) {
+          return;
+        }
+        setState({ status: "error", message: messageFrom(error, "Could not load districts") });
+      });
+    return () => {
+      live = false;
+    };
+  }, []);
 
   return { state, reload: load };
 }

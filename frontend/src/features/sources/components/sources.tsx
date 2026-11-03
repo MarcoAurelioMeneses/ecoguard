@@ -14,7 +14,7 @@ export function Sources() {
   const config = useRiskConfig();
   return (
     <section className="stack">
-      <h1>Sources and methodology</h1>
+      <h2>Weights and catalog</h2>
       {config.status === "loading" ? <LoadingState label="Loading score weights…" /> : null}
       {config.status === "error" ? <ErrorState message={config.message} /> : null}
       {config.status === "ready" ? (

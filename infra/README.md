@@ -4,7 +4,7 @@ Local runtime only. This directory does not create Railway or Supabase resources
 
 | Path | Purpose |
 | --- | --- |
-| `postgres/Dockerfile` | Postgres 16 (Debian bookworm) with PostGIS and pgvector. The server process runs as `postgres` |
+| `postgres/Dockerfile` | Postgres 18 (Debian bookworm) with `postgresql-18-postgis-3` and `postgresql-18-pgvector`. The 16 packages do not serve `CREATE EXTENSION` on this server. The compose volume is `/var/lib/postgresql` |
 | `docker-compose.yml` | Local database. Password `ecoguard` is local-only |
 | `railway/README.md` | Planned services, not applied |
 | `ci/README.md` | Why workflows live in `.github/workflows` |

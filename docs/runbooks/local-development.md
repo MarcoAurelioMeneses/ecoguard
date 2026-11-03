@@ -39,6 +39,7 @@ One collector:
 ./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=infodengue'
 ./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=open-meteo'
 ./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=geosampa-districts'
+./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=risk-scores'
 ```
 
 Web:

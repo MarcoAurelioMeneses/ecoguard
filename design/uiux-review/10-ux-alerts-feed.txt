@@ -1,0 +1,15 @@
+## UI Pro Max Search Results
+**Domain:** ux | **Query:** alerts notifications severity feed
+**Source:** ux-guidelines.csv | **Found:** 1 results
+
+### Result 1
+- **Category:** Feedback
+- **Issue:** Toast Notifications
+- **Platform:** All
+- **Description:** Transient messages for non-critical info
+- **Do:** Auto-dismiss after 3-5 seconds
+- **Don't:** Toasts that never disappear
+- **Code Example Good:** Auto-dismiss toast
+- **Code Example Bad:** Persistent toast
+- **Severity:** Medium
+

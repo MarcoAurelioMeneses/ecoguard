@@ -20,6 +20,7 @@ A second run with the same payload does not write a new raw row. A changed forec
 ./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=infodengue'
 ./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=open-meteo'
 ./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=geosampa-districts'
+./backend/gradlew -p backend :ingestion:bootRun --args='--ecoguard.job=risk-scores'
 ```
 
 InfoDengue defaults to São Paulo (`3550308`), disease `dengue`, and the previous calendar year through the current one, one HTTP request per year. Open-Meteo defaults to the city reference point `-23.5505, -46.6333`, timezone `America/Sao_Paulo`, seven forecast days, location id `sp-city-reference`. GeoSampa pages the WFS layer `geoportal:distrito_municipal` and writes `marts.districts`. A response that is not 96 features fails the run.

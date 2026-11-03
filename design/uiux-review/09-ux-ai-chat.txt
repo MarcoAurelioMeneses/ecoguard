@@ -1,0 +1,37 @@
+## UI Pro Max Search Results
+**Domain:** ux | **Query:** AI chat sources citations streaming
+**Source:** ux-guidelines.csv | **Found:** 3 results
+
+### Result 1
+- **Category:** AI Interaction
+- **Issue:** Streaming
+- **Platform:** All
+- **Description:** Waiting for full text is slow
+- **Do:** Stream text response token by token
+- **Don't:** Show loading spinner for 10s+
+- **Code Example Good:** Typewriter effect
+- **Code Example Bad:** Spinner until 100% complete
+- **Severity:** Medium
+
+### Result 2
+- **Category:** AI Interaction
+- **Issue:** Disclaimer
+- **Platform:** All
+- **Description:** Users need to know they talk to AI
+- **Do:** Clearly label AI generated content
+- **Don't:** Present AI as human
+- **Code Example Good:** AI Assistant label
+- **Code Example Bad:** Fake human name without label
+- **Severity:** High
+
+### Result 3
+- **Category:** AI Interaction
+- **Issue:** Feedback Loop
+- **Platform:** All
+- **Description:** AI needs user feedback to improve
+- **Do:** Thumps up/down or 'Regenerate'
+- **Don't:** Static output only
+- **Code Example Good:** Feedback component
+- **Code Example Bad:** Read-only text
+- **Severity:** Low
+

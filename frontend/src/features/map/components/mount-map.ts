@@ -1,6 +1,6 @@
 import { setWorkerUrl, type Map as MapLibreMap } from "maplibre-gl";
 import { boundsOf } from "@/features/district/model/bounds";
-import type { District } from "@/features/district/model/district";
+import type { District, RiskClass } from "@/features/district/model/district";
 
 let workerConfigured = false;
 
@@ -12,7 +12,22 @@ function token(styles: CSSStyleDeclaration, name: string): string {
   return value;
 }
 
-export async function mountDistrictMap(container: HTMLElement, districts: District[]): Promise<MapLibreMap> {
+function klass(district: District, layer: string): RiskClass {
+  const score = district.score;
+  if (!score) {
+    return "nodata";
+  }
+  if (layer === "environmental") return score.environmentalClass;
+  if (layer === "health") return score.healthClass;
+  if (layer === "social") return score.socialClass;
+  return score.overallClass;
+}
+
+export async function mountDistrictMap(
+  container: HTMLElement,
+  districts: District[],
+  layer: string,
+): Promise<MapLibreMap> {
   const maplibre = await import("maplibre-gl");
   if (!workerConfigured) {
     setWorkerUrl("/maplibre-gl-worker.mjs");
@@ -38,7 +53,7 @@ export async function mountDistrictMap(container: HTMLElement, districts: Distri
         type: "FeatureCollection",
         features: districts.map((district) => ({
           type: "Feature" as const,
-          properties: { code: district.code, name: district.name },
+          properties: { code: district.code, name: district.name, klass: klass(district, layer) },
           geometry: district.geometry,
         })),
       },
@@ -47,7 +62,22 @@ export async function mountDistrictMap(container: HTMLElement, districts: Distri
       id: "district-fill",
       type: "fill",
       source: "districts",
-      paint: { "fill-color": token(styles, "--nodata"), "fill-opacity": 0.95 },
+      paint: {
+        "fill-color": [
+          "match",
+          ["get", "klass"],
+          "baixo",
+          token(styles, "--baixo"),
+          "moderado",
+          token(styles, "--moderado"),
+          "alto",
+          token(styles, "--alto"),
+          "critico",
+          token(styles, "--critico"),
+          token(styles, "--nodata"),
+        ],
+        "fill-opacity": 0.95,
+      },
     });
     map.addLayer({
       id: "district-line",

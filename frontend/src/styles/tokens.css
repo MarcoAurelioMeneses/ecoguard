@@ -1,18 +1,26 @@
-/* EcoGuard tokens. Dark is the default. Add class .light on html for the light theme.
-   Light accent #076E94 is the v0.2 value (large text and controls on a surface). */
+/* EcoGuard design tokens v0.2 (revisão ui-ux-pro-max) — tema escuro é o padrão; adicione a classe .light no <body>/<html> para o tema claro */
 :root{
-  --bg:#0B1014; --surface:#121A21; --elev:#19232C; --border:#243039; --border-strong:#3D5160;
+  --bg:#0B1014; --surface:#121A21; --elev:#19232C; --border:#243039;
+  --border-strong:#5A6C7A;            /* borda de controles (chips, botões, campos): 3,2:1 sobre a superfície */
   --text:#E6EDF3; --muted:#8B9AA7; --accent:#38BDF8; --accent-bg:rgba(56,189,248,.12);
-  --baixo:#3FB68B; --moderado:#F2C94C; --alto:#F2994A; --critico:#E5484D;
-  --t-baixo:#3FB68B; --t-moderado:#F2C94C; --t-alto:#F2994A; --t-critico:#FF6B6F;
-  --mapstroke:#0B1014; --nodata:#1F2B35;
+  --ring:#38BDF8;                     /* anel de foco: 2 px + 2 px de offset */
+  --baixo:#3FB68B; --moderado:#F2C94C; --alto:#F2994A; --critico:#E5484D;       /* preenchimentos (mapa, barras) */
+  --t-baixo:#3FB68B; --t-moderado:#F2C94C; --t-alto:#F2994A; --t-critico:#FF6B6F; /* texto/borda de badge (≥ 4,5:1) */
+  --mapstroke:#0B1014; --nodata:#1F2B35; --pat:rgba(5,8,10,.45);                 /* --pat: cor dos padrões do mapa */
   --radius-card:14px; --radius-chip:999px; --radius-ctl:10px;
-  --gap:22px; --pad-content:36px; --sidebar:292px; --topbar:88px;
+  --gap:24px; --pad-content:36px; --sidebar:292px; --topbar:92px; --touch:44px;
   --font-ui:'Inter',system-ui,sans-serif; --font-num:'JetBrains Mono',ui-monospace,monospace;
+  /* escala tipográfica (px): 12 14 16 18 24 28 32 40 48; mínimo = 14; 12 só em rótulos de grupo da navegação, contador de alertas e tag "IA", sempre em caixa-alta/negrito */
+  /* (fim)  */
 }
 .light{
-  --bg:#F4F7F9; --surface:#FFFFFF; --elev:#EEF3F6; --border:#D5DEE5; --border-strong:#6E8494;
-  --text:#0E1A24; --muted:#556574; --accent:#076E94; --accent-bg:rgba(7,110,148,.10);
+  --bg:#F4F7F9; --surface:#FFFFFF; --elev:#EEF3F6; --border:#D5DEE5; --border-strong:#7C8D9A;
+  --text:#0E1A24; --muted:#556574; --accent:#076E94; --accent-bg:rgba(7,110,148,.10); --ring:#076E94;
   --t-baixo:#1B7A58; --t-moderado:#80620A; --t-alto:#AE5208; --t-critico:#C0272D;
-  --mapstroke:#FFFFFF; --nodata:#E3EAEF;
+  --mapstroke:#FFFFFF; --nodata:#E3EAEF; --pat:rgba(14,26,36,.5);
 }
+/* Padrões de risco (nunca só cor): baixo = liso · moderado = pontos · alto = diagonal · crítico = hachura cruzada.
+   Formas nos badges/marcadores: baixo = círculo · moderado = losango · alto = triângulo · crítico = octógono. */
+/* Interação */
+:focus-visible{outline:2px solid var(--ring);outline-offset:2px;border-radius:8px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
