@@ -2,6 +2,7 @@ package com.ecoguard.ingestion.score;
 
 import com.ecoguard.domain.risk.OverallWeights;
 import com.ecoguard.domain.risk.ScoreInputs.DengueReading;
+import com.ecoguard.domain.risk.ScoreInputs.DistrictDay;
 import com.ecoguard.domain.risk.ScoreInputs.ForecastDay;
 import com.ecoguard.domain.risk.ScoreInputs.PersistedScore;
 import com.ecoguard.domain.risk.ScoreInputs.Readings;
@@ -79,6 +80,35 @@ public class JdbcScoreStore implements Readings, Writer {
   public List<String> districtCodes() {
     return jdbc.sql("SELECT district_code FROM marts.districts ORDER BY district_code")
         .query((rs, row) -> rs.getString(1))
+        .list();
+  }
+
+  @Override
+  public List<DistrictDay> districtDays() {
+    return jdbc.sql(
+            """
+            SELECT w.district_code, w.observation_date, w.temperature_max_c, w.precipitation_mm,
+                   w.pm2_5_mean, f.hotspot_count, c.population, c.area_km2,
+                   c.occupied_households, c.sewage_network_households
+            FROM staging.district_environment_daily w
+            LEFT JOIN staging.district_fire_daily f
+              ON f.district_code = w.district_code AND f.observation_date = w.observation_date
+            LEFT JOIN staging.district_census c ON c.district_code = w.district_code
+            ORDER BY w.observation_date, w.district_code
+            """)
+        .query(
+            (rs, row) ->
+                new DistrictDay(
+                    rs.getString("district_code"),
+                    rs.getDate("observation_date").toLocalDate(),
+                    rs.getBigDecimal("temperature_max_c"),
+                    rs.getBigDecimal("precipitation_mm"),
+                    rs.getBigDecimal("pm2_5_mean"),
+                    (Integer) rs.getObject("hotspot_count"),
+                    rs.getBigDecimal("population"),
+                    rs.getBigDecimal("area_km2"),
+                    rs.getBigDecimal("occupied_households"),
+                    rs.getBigDecimal("sewage_network_households")))
         .list();
   }
 

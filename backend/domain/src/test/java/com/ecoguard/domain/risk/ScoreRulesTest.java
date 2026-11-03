@@ -1,7 +1,6 @@
 package com.ecoguard.domain.risk;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -37,25 +36,35 @@ class ScoreRulesTest {
   }
 
   @Test
-  void partialPillarsDoNotPublishAnOverall() {
+  void publishesOverallWhenEveryPillarMeetsMinimumCoverage() {
     ScoreRules.DayScore day =
         ScoreRules.day(
             WEIGHTS,
-            ScoreRules.heatForecast(new BigDecimal("35")),
-            ScoreRules.rainForecast(BigDecimal.ZERO),
-            new BigDecimal("70.00"));
-    assertEquals(0, new BigDecimal("45.45").compareTo(day.environmental().score()));
-    assertEquals(0, new BigDecimal("0.55").compareTo(day.environmental().coverage()));
-    assertFalse(day.environmental().complete());
-    assertTrue(day.environmental().missing().contains("air_quality"));
+            new BigDecimal("100.00"),
+            new BigDecimal("0.00"),
+            new BigDecimal("50.00"),
+            new BigDecimal("0.00"),
+            new BigDecimal("70.00"),
+            new BigDecimal("80.00"),
+            new BigDecimal("20.00"));
+    assertEquals(0, new BigDecimal("40.00").compareTo(day.environmental().score()));
+    assertEquals(0, new BigDecimal("1.00").compareTo(day.environmental().coverage()));
     assertEquals(0, new BigDecimal("70.00").compareTo(day.health().score()));
-    assertFalse(day.health().complete());
-    assertNull(day.social().score());
+    assertEquals(0, new BigDecimal("0.60").compareTo(day.health().coverage()));
+    assertTrue(day.health().missing().contains("respiratory_datasus"));
+    assertEquals(0, new BigDecimal("50.00").compareTo(day.social().score()));
+    assertEquals(0, new BigDecimal("0.50").compareTo(day.social().coverage()));
+    assertTrue(day.social().missing().contains("income"));
+    assertEquals(0, new BigDecimal("53.00").compareTo(day.overall()));
+    assertEquals("moderado", day.riskClass());
+  }
+
+  @Test
+  void overallStaysNullBelowMinimumCoverage() {
+    ScoreRules.DayScore day =
+        ScoreRules.day(WEIGHTS, null, null, null, null, new BigDecimal("70"), null, null);
+    assertNull(day.environmental().score());
     assertNull(day.overall());
-    assertEquals("nodata", day.riskClass());
-    assertEquals("moderado", ScoreRules.layerClass(day, "environmental"));
-    assertEquals("alto", ScoreRules.layerClass(day, "health"));
-    assertEquals("nodata", ScoreRules.layerClass(day, "social"));
   }
 
   @Test

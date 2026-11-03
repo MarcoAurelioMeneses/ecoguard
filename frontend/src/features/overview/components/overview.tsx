@@ -12,6 +12,10 @@ function formatScore(value: number | null | undefined): string {
   return value == null ? "—" : value.toFixed(0);
 }
 
+function percent(value: number | null | undefined): number | null {
+  return value == null ? null : value * 100;
+}
+
 export function Overview() {
   const { state, reload } = useDistricts();
   const [table, setTable] = useState(false);
@@ -19,7 +23,7 @@ export function Overview() {
   return (
     <section className="stack">
       <div className="toolbar">
-        <h2>Indicators</h2>
+        <h2>Indicators for {state.status === "ready" ? (state.data[0]?.name ?? "the city") : "the city"}</h2>
         <ViewToggle table={table} onChange={setTable} />
       </div>
       {state.status === "loading" ? <LoadingState label="Loading districts…" /> : null}
@@ -37,22 +41,33 @@ export function Overview() {
               <h3>Overall</h3>
               <p className="num kpi-value">{formatScore(state.data[0]?.score?.overall)}</p>
               <RiskMark level={state.data[0]?.score?.overallClass ?? "nodata"} />
+              <p className="meta">Published when every pillar reaches 50% coverage</p>
             </article>
             <article className="kpi">
-              <h3>Heat forecast</h3>
-              <p className="num kpi-value">{formatScore(state.data[0]?.score?.heat)}</p>
-              <p className="meta">City Open-Meteo forecast, not a station observation</p>
+              <h3>Environmental</h3>
+              <p className="num kpi-value">{formatScore(state.data[0]?.score?.environmental)}</p>
+              <RiskMark level={state.data[0]?.score?.environmentalClass ?? "nodata"} />
+              <p className="meta">
+                Coverage {formatScore(percent(state.data[0]?.score?.environmentalCoverage))}%
+              </p>
             </article>
             <article className="kpi">
-              <h3>Rain forecast</h3>
-              <p className="num kpi-value">{formatScore(state.data[0]?.score?.rain)}</p>
-              <p className="meta">Same city reference for every district</p>
-            </article>
-            <article className="kpi">
-              <h3>Dengue</h3>
-              <p className="num kpi-value">{formatScore(state.data[0]?.score?.dengue)}</p>
+              <h3>Health</h3>
+              <p className="num kpi-value">{formatScore(state.data[0]?.score?.health)}</p>
               <RiskMark level={state.data[0]?.score?.healthClass ?? "nodata"} />
-              <p className="meta">Municipal InfoDengue, not a district rate</p>
+              <p className="meta">
+                Coverage {formatScore(percent(state.data[0]?.score?.healthCoverage))}%. Municipal dengue.
+                Respiratory data has no anonymous API.
+              </p>
+            </article>
+            <article className="kpi">
+              <h3>Social</h3>
+              <p className="num kpi-value">{formatScore(state.data[0]?.score?.social)}</p>
+              <RiskMark level={state.data[0]?.score?.socialClass ?? "nodata"} />
+              <p className="meta">
+                Coverage {formatScore(percent(state.data[0]?.score?.socialCoverage))}%. Density and sewer
+                network. Census income is not in this release.
+              </p>
             </article>
           </div>
           {table ? (
