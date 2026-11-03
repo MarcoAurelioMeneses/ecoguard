@@ -73,3 +73,45 @@ updates:
       # The Postgres major is tied to the PostGIS and pgvector package names in the image.
       - dependency-name: postgres
         update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: docker
+    directory: /infra/railway/api
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      docker-api-minor-patch:
+        update-types:
+          - minor
+          - patch
+    ignore:
+      - dependency-name: eclipse-temurin
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: docker
+    directory: /infra/railway/ingestion
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      docker-ingestion-minor-patch:
+        update-types:
+          - minor
+          - patch
+    ignore:
+      - dependency-name: eclipse-temurin
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: docker
+    directory: /infra/railway/frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    groups:
+      docker-frontend-minor-patch:
+        update-types:
+          - minor
+          - patch
+    ignore:
+      - dependency-name: node
+        update-types: ["version-update:semver-major"]

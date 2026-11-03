@@ -9,4 +9,10 @@ RUN apt-get update \
         postgresql-18-postgis-3 \
         postgresql-18-pgvector \
     && rm -rf /var/lib/apt/lists/*
-USER postgres
+
+# Stay root for the official entrypoint. It chowns the data directory, then
+# drops to the postgres user with gosu before the server accepts connections.
+# A fresh volume is root-owned; USER postgres would make initdb fail.
+
+HEALTHCHECK --interval=10s --timeout=5s --start-period=30s --retries=12 \
+  CMD ["sh", "-c", "pg_isready -U \"${POSTGRES_USER:-ecoguard}\" -d \"${POSTGRES_DB:-ecoguard}\""]

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "DOCKERFILE",
+    "dockerfilePath": "infra/postgres/Dockerfile",
+    "watchPatterns": ["infra/postgres/**", "infra/railway/postgres/**"]
+  },
+  "deploy": {
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 10,
+    "numReplicas": 1,
+    "requiredMountPath": "/var/lib/postgresql"
+  }
+}
