@@ -5,6 +5,7 @@ set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 diff -q "$root/design/tokens.css" "$root/frontend/src/styles/tokens.css"
-diff -q "$root/design/logo/logo-icone.svg" "$root/frontend/public/logo.svg"
-diff -q "$root/design/logo/logo-icone-claro.svg" "$root/frontend/public/logo-light.svg"
+diff -rq "$root/design/logo/v2" "$root/frontend/public/logo/v2"
+diff -q "$root/design/logo/v2/favicon.ico" "$root/frontend/public/favicon.ico"
+diff -q "$root/design/logo/v2/favicon.svg" "$root/frontend/public/favicon.svg"
 echo "Design tokens and logos match frontend/."

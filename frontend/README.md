@@ -12,7 +12,7 @@ Next.js App Router application in `src/`. It is separate from the Java API. Stru
 | `/alerts`    | `features/alerts`   | 05 No alerts until those feeds exist                                  |
 | `/sources`   | `features/sources`  | 06 Weights from `GET /risk-config` plus the catalog                   |
 
-`src/styles/tokens.css` and `public/logo*.svg` are copies of `design/`. `scripts/check-design-sync.sh` checks them. Light-theme accent is `#076E94`. Control borders use `--border-strong`. Body copy stays at least 14px. Risk marks use a shape as well as a color. Charts and the map have a "View as table" control. Focus is visible. Motion is removed when `prefers-reduced-motion` is set.
+`src/styles/tokens.css` and `public/logo/v2/` are copies of `design/`. `public/favicon.svg` is the mark used below 24px. `scripts/check-design-sync.sh` checks them. The wordmark is Eco in `--accent` and Guard in `--text`. Light-theme accent is `#076E94`. Control borders use `--border-strong`. Body copy stays at least 14px. Risk marks use a shape as well as a color. Charts and the map have a "View as table" control. Focus is visible. Motion is removed when `prefers-reduced-motion` is set.
 
 `src/lib/analytics` validates events and forwards them to PostHog only when both `NEXT_PUBLIC_POSTHOG_KEY` and `NEXT_PUBLIC_POSTHOG_HOST` are set. Autocapture, cookies, session replay, and question text are off.
 

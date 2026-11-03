@@ -12,7 +12,15 @@ const themeBoot = `(function(){try{var s=localStorage.getItem("ecoguard-theme");
 export const metadata: Metadata = {
   title: "EcoGuard",
   description: "City risk intelligence for São Paulo.",
-  icons: { icon: "/logo.svg" },
+  icons: {
+    icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/logo/v2/png/favicon-16.png", sizes: "16x16", type: "image/png" },
+      { url: "/logo/v2/favicon-32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [{ url: "/logo/v2/png/favicon-180-apple-touch.png", sizes: "180x180" }],
+  },
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

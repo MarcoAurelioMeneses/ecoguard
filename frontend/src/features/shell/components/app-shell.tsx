@@ -33,9 +33,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </a>
       <aside className="sidebar">
         <div className="brand">
-          <Image src="/logo.svg" alt="" width={32} height={32} unoptimized />
+          <span className="brand-mark">
+            <Image
+              className="brand-mark-dark"
+              src="/logo/v2/transparente/icone-escuro.svg"
+              alt=""
+              width={32}
+              height={32}
+              unoptimized
+            />
+            <Image
+              className="brand-mark-light"
+              src="/logo/v2/transparente/icone-claro.svg"
+              alt=""
+              width={32}
+              height={32}
+              unoptimized
+            />
+          </span>
           <p className="wordmark">
-            Eco<span className="wordmark-accent">Guard</span>
+            <span className="wordmark-eco">Eco</span>
+            <span className="wordmark-guard">Guard</span>
           </p>
         </div>
         <nav className="nav" aria-label="Primary">
