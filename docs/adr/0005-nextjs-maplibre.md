@@ -14,12 +14,12 @@ Use Next.js (App Router) and TypeScript in `frontend/`, with pnpm. MapLibre is t
 This PR only wires the theme foundation:
 
 - `design/tokens.css` is copied to `frontend/shared/styles/tokens.css` and imported globally
-- `design/logo/logo-icone.svg` and `logo-icone-claro.svg` are copied to `public/`
+- `design/logo/v2/` is copied to `frontend/public/logo/v2/`. The sidebar uses the transparent icon at 32px. `favicon.svg` is the simplified mark below 24px
 - the root is dark; the class `light` on `<html>` switches theme, matching the token file
 - the first paint follows `prefers-color-scheme`, then `localStorage` key `ecoguard-theme`
 - the page is a placeholder, not a screen from `design/html`
 
-Light-theme `--accent` (`#0A7EA8`) measures about 4.3:1 against `--bg` (`#F4F7F9`). That is large-text contrast only. The placeholder uses the accent on the wordmark at 24px / 600 and nowhere else. Body copy stays on `--text`.
+Light-theme `--accent` (`#0A7EA8`) measures about 4.3:1 against `--bg` (`#F4F7F9`). That is large-text contrast only. The placeholder uses the accent on Eco in the wordmark at 24px / 600. Guard uses `--text`. Body copy stays on `--text`.
 
 Mockup numbers, including the chip "Dados de exemplo", are not shown and are not fetched.
 
