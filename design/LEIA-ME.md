@@ -2,7 +2,7 @@
 - `design-system.md` — tokens, tipografia, componentes e observações para o dev (pt-BR)
 - `tokens.css` — variáveis CSS (escuro + claro)
 - `brand-sheet.png` — paleta, escala de risco, tipografia, componentes (renderizado com as cores exatas)
-- `logo/` — ícone SVG (vetor), ícone e wordmark gerados por IA
+- `logo/v2/` — logotipo final (horizontal, vertical, ícone, favicon, PNG)
 - `mockups/` — 7 telas (00 a 06) 1920×1080, escuro e claro
 - `html/` — as mesmas telas em HTML/CSS (referência para o front)
 - `src/` — scripts Python que geram tudo (`python3 src/screens.py`; o GeoJSON dos distritos está em `src/distritos-sp.geojson`, `python3 src/brand.py`; exigem Chrome, Inter e JetBrains Mono)

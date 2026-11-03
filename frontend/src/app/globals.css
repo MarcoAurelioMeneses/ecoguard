@@ -67,6 +67,31 @@ a {
   gap: 12px;
 }
 
+/* 32px uses the full icon. Below 24px the UI must use /favicon.svg (thicker stroke, no pin). */
+.brand-mark {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  flex: none;
+}
+
+.brand-mark img {
+  width: 32px;
+  height: 32px;
+}
+
+.brand-mark-light {
+  display: none;
+}
+
+html.light .brand-mark-dark {
+  display: none;
+}
+
+html.light .brand-mark-light {
+  display: block;
+}
+
 .wordmark {
   margin: 0;
   font-size: 24px;
@@ -74,8 +99,12 @@ a {
   letter-spacing: -0.02em;
 }
 
-.wordmark-accent {
+.wordmark-eco {
   color: var(--accent);
+}
+
+.wordmark-guard {
+  color: var(--text);
 }
 
 .nav {

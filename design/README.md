@@ -9,11 +9,11 @@ Originals as delivered, plus this note. Portuguese copy in `LEIA-ME.md` and `des
 | `mockups/`, `html/` | Screens 00 through 06, dark and light |
 | `mockups/extras/estados-*.png` | Loading, empty, error, focus, and no-data sheet |
 | `uiux-review/auditoria.md` | v0.2 audit. Portuguese, left as delivered |
-| `logo/` | Vector icon and AI-generated PNG lockups |
+| `logo/v2/` | Final logo. Horizontal, vertical, and icon SVGs in light, dark, and mono, plus favicon and PNG exports. Copied to `frontend/public/logo/v2/` |
 | `src/` | Generators. Not a runtime dependency |
 | `src/distritos-sp.geojson` | Dev fixture only. See below |
 
-`/` is screen 00. `scripts/check-design-sync.sh` checks the token and logo copies. Mockup numbers are examples and are not seeded.
+`/` is screen 00. `scripts/check-design-sync.sh` checks the token file and `logo/v2`. Mockup numbers are examples and are not seeded. The in-app wordmark is text: Eco in `--accent`, Guard in `--text`. Marks smaller than 24px use `favicon.svg`.
 
 ## District fixture
 
