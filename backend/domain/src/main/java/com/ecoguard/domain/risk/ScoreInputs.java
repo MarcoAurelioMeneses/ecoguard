@@ -11,6 +11,18 @@ public final class ScoreInputs {
   public record ForecastDay(
       LocalDate date, BigDecimal temperatureMaxC, BigDecimal precipitationMm) {}
 
+  public record DistrictDay(
+      String districtCode,
+      LocalDate date,
+      BigDecimal temperatureMaxC,
+      BigDecimal precipitationMm,
+      BigDecimal pm25DailyMean,
+      Integer fireCount,
+      BigDecimal population,
+      BigDecimal areaKm2,
+      BigDecimal occupiedHouseholds,
+      BigDecimal sewageNetworkHouseholds) {}
+
   public record DengueReading(LocalDate weekStart, Integer level, BigDecimal incidencePer100k) {}
 
   public record PersistedScore(
@@ -25,6 +37,8 @@ public final class ScoreInputs {
     List<String> districtCodes();
 
     List<ForecastDay> forecasts(String locationId);
+
+    List<DistrictDay> districtDays();
 
     DengueReading latestDengue(int geocode, String disease);
 

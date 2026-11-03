@@ -2,7 +2,7 @@ package com.ecoguard.application;
 
 import com.ecoguard.domain.risk.OverallWeights;
 import com.ecoguard.domain.risk.ScoreInputs.DengueReading;
-import com.ecoguard.domain.risk.ScoreInputs.ForecastDay;
+import com.ecoguard.domain.risk.ScoreInputs.DistrictDay;
 import com.ecoguard.domain.risk.ScoreInputs.PersistedScore;
 import com.ecoguard.domain.risk.ScoreInputs.Readings;
 import com.ecoguard.domain.risk.ScoreInputs.Writer;
@@ -18,25 +18,30 @@ public final class ComputeRiskScores {
   public int execute(
       Readings readings,
       Writer writer,
-      Instant computedAt,
-      String configKey,
-      String locationId,
-      int geocode,
-      String disease) {
+      Instant computedAt, String configKey, int geocode, String disease) {
     OverallWeights weights = readings.weights(configKey);
-    List<String> districts = readings.districtCodes();
-    List<ForecastDay> forecasts = readings.forecasts(locationId);
     DengueReading dengue = readings.latestDengue(geocode, disease);
     List<PersistedScore> rows = new ArrayList<>();
-    for (ForecastDay forecast : forecasts) {
-      BigDecimal heat = ScoreRules.heatForecast(forecast.temperatureMaxC());
-      BigDecimal rain = ScoreRules.rainForecast(forecast.precipitationMm());
-      BigDecimal dengueScore = dengueScore(dengue, forecast);
-      DayScore day = ScoreRules.day(weights, heat, rain, dengueScore);
-      String grain = grain(day);
-      for (String code : districts) {
-        rows.add(new PersistedScore(code, forecast.date(), configKey, day, computedAt, grain));
-      }
+    for (DistrictDay observation : readings.districtDays()) {
+      BigDecimal heat = ScoreRules.heatForecast(observation.temperatureMaxC());
+      BigDecimal rain = ScoreRules.rainForecast(observation.precipitationMm());
+      BigDecimal air = ScoreRules.airQuality(observation.pm25DailyMean());
+      BigDecimal fire = ScoreRules.fire(observation.fireCount());
+      BigDecimal dengueScore = dengueScore(dengue, observation.date());
+      BigDecimal density = ScoreRules.densityRisk(observation.population(), observation.areaKm2());
+      BigDecimal sanitation =
+          ScoreRules.sanitationRisk(
+              observation.occupiedHouseholds(), observation.sewageNetworkHouseholds());
+      DayScore day =
+          ScoreRules.day(weights, heat, rain, air, fire, dengueScore, density, sanitation);
+      rows.add(
+          new PersistedScore(
+              observation.districtCode(),
+              observation.date(),
+              configKey,
+              day,
+              computedAt,
+              grain(day)));
     }
     if (rows.isEmpty()) {
       return 0;
@@ -46,8 +51,8 @@ public final class ComputeRiskScores {
     return written;
   }
 
-  private static BigDecimal dengueScore(DengueReading dengue, ForecastDay forecast) {
-    if (dengue == null || dengue.weekStart().isAfter(forecast.date())) {
+  private static BigDecimal dengueScore(DengueReading dengue, java.time.LocalDate date) {
+    if (dengue == null || dengue.weekStart().isAfter(date)) {
       return null;
     }
     return ScoreRules.dengue(dengue.level(), dengue.incidencePer100k());

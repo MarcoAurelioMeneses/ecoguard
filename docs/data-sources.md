@@ -200,4 +200,19 @@ Other GeoSampa layers (vulnerability, flooding susceptibility, green areas) are 
 
 ## What the reference workers deliberately skip
 
-InfoDengue and Open-Meteo are the two sources with a stable anonymous JSON API that answered completely. INMET, CETESB, CEMADEN, and the DataSUS file server did not clear that bar on 2026-11-02. INPE and IBGE/SIDRA and GeoSampa did, and are the next ingestion milestones, with the geography rule above.
+## What the score job reads
+
+Checked again on 2026-11-03. Only anonymous endpoints are used.
+
+| Feed | Access | Grain | License / attribution |
+| --- | --- | --- | --- |
+| Open-Meteo forecast | `https://api.open-meteo.com/v1/forecast`, one call per batch of district points-on-surface, `past_days` up to 92 | District centroid, daily max temperature and precipitation | CC BY 4.0. "Weather data by Open-Meteo.com" |
+| Open-Meteo Air Quality | `https://air-quality-api.open-meteo.com/v1/air-quality`, hourly PM2.5, PM10 and ozone averaged to a day | Same district points | CC BY 4.0. "Air quality data by Open-Meteo.com" |
+| INPE BDQueimadas | Daily Brazil CSV `focos_diario_br_YYYYMMDD.csv` under `.../focos/csv/diario/Brasil/`. Rows with `municipio_id` 3550308 are joined with `ST_Within` | District polygon, daily count. Zero is a real zero | Free of charge. Cite INPE Programa Queimadas. No OSI license text |
+| IBGE Censo 2022 | District universe zips `Agregados_por_distritos_basico_*` and `Agregados_por_distritos_caracteristicas_domicilio2_*`. 96 rows for municipality 3550308, matched to GeoSampa by normalized name | District. Population `v0001`, area `AREA_KM2`, occupied households `v0007`, sewer network `V00309` | IBGE open data. Cite IBGE, Censo Demográfico 2022 |
+| InfoDengue | Existing municipal weekly API | Municipality, broadcast to every district and labeled as such | Cite Fiocruz/InfoDengue. No OSI license found |
+| DataSUS SIH | No anonymous API confirmed | Not loaded | Respiratory hospitalizations stay missing. The health pillar says so and does not invent a proxy |
+
+Census income is not in the 2022 universe district tables, so the income indicator stays missing. Density and sewer coverage are the social indicators that are present. A pillar is published when at least half of its indicator weight is present; the present weights are renormalized and the coverage is stored. Overall uses 0.40 / 0.35 / 0.25 only when all three pillars clear that bar.
+
+`scripts/up-and-seed.sh` builds the local database and runs `--ecoguard.job=backfill`. Each feed is also its own job: `open-meteo-districts`, `inpe-fires`, `ibge-census`, `infodengue`, `geosampa-districts`, `risk-scores`. Set `ECOGUARD_SCHEDULE_CRON` on the ingestion process to run that sequence daily in `America/Sao_Paulo`. `ECOGUARD_BACKFILL_DAYS` defaults to 30.

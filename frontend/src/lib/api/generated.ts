@@ -138,6 +138,7 @@ export interface components {
             dengue?: number | null;
             environmentalCoverage?: number | null;
             healthCoverage?: number | null;
+            socialCoverage?: number | null;
             environmentalClass?: string;
             healthClass?: string;
             socialClass?: string;

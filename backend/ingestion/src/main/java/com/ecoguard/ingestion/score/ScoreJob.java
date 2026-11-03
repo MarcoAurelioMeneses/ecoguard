@@ -32,7 +32,6 @@ public class ScoreJob {
                     store,
                     Instant.now(),
                     "default",
-                    properties.openMeteo().locationId(),
                     properties.infodengue().geocode(),
                     properties.infodengue().disease()));
     return written == null ? 0 : written;

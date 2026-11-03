@@ -37,6 +37,7 @@ public interface DistrictReadModel {
       BigDecimal dengue,
       BigDecimal environmentalCoverage,
       BigDecimal healthCoverage,
+      BigDecimal socialCoverage,
       String environmentalClass,
       String healthClass,
       String socialClass,

@@ -117,6 +117,7 @@
           "dengue": { "type": "number", "nullable": true },
           "environmentalCoverage": { "type": "number", "nullable": true },
           "healthCoverage": { "type": "number", "nullable": true },
+          "socialCoverage": { "type": "number", "nullable": true },
           "environmentalClass": { "type": "string" },
           "healthClass": { "type": "string" },
           "socialClass": { "type": "string" },

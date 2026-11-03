@@ -7,13 +7,21 @@ import java.util.List;
 
 /**
  * Draft indicator rules for the sources this job can read. A missing indicator is listed. A pillar
- * uses only the indicators that are present and records that coverage. Overall stays null unless
- * every pillar is complete.
+ * uses only the indicators that are present, records that coverage, and renormalizes the weights
+ * that are present once coverage reaches {@link #MINIMUM_COVERAGE}. Overall is published when
+ * every pillar meets that minimum.
  */
 public final class ScoreRules {
+  public static final BigDecimal MINIMUM_COVERAGE = new BigDecimal("0.50");
   public static final BigDecimal HEAT_WEIGHT = new BigDecimal("0.25");
   public static final BigDecimal RAIN_WEIGHT = new BigDecimal("0.30");
+  public static final BigDecimal AIR_WEIGHT = new BigDecimal("0.30");
+  public static final BigDecimal FIRE_WEIGHT = new BigDecimal("0.15");
   public static final BigDecimal DENGUE_WEIGHT = new BigDecimal("0.60");
+  public static final BigDecimal RESPIRATORY_WEIGHT = new BigDecimal("0.40");
+  public static final BigDecimal DENSITY_WEIGHT = new BigDecimal("0.25");
+  public static final BigDecimal SANITATION_WEIGHT = new BigDecimal("0.25");
+  public static final BigDecimal INCOME_WEIGHT = new BigDecimal("0.50");
   private static final BigDecimal HUNDRED = new BigDecimal("100");
   private static final BigDecimal ZERO = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
 
@@ -84,31 +92,99 @@ public final class ScoreRules {
     return incidencePer100k.setScale(2, RoundingMode.HALF_UP);
   }
 
-  public static Pillar environmental(BigDecimal heat, BigDecimal rain) {
-    List<String> missing = new ArrayList<>(List.of("air_quality", "fire"));
+  /** 0 at or below 5 µg/m³ daily mean PM2.5, 100 at or above 50. */
+  public static BigDecimal airQuality(BigDecimal pm25DailyMean) {
+    if (pm25DailyMean == null) {
+      return null;
+    }
+    if (pm25DailyMean.compareTo(new BigDecimal("5")) <= 0) {
+      return ZERO;
+    }
+    if (pm25DailyMean.compareTo(new BigDecimal("50")) >= 0) {
+      return HUNDRED.setScale(2, RoundingMode.HALF_UP);
+    }
+    return pm25DailyMean
+        .subtract(new BigDecimal("5"))
+        .multiply(HUNDRED)
+        .divide(new BigDecimal("45"), 2, RoundingMode.HALF_UP);
+  }
+
+  /** Null when the day's file was not read. Zero hotspots is a real zero, not missing data. */
+  public static BigDecimal fire(Integer hotspotCount) {
+    if (hotspotCount == null) {
+      return null;
+    }
+    return hotspotCount > 0 ? HUNDRED.setScale(2, RoundingMode.HALF_UP) : ZERO;
+  }
+
+  /** Higher density is higher vulnerability. 0 at or below 2,000/km², 100 at or above 20,000. */
+  public static BigDecimal densityRisk(BigDecimal population, BigDecimal areaKm2) {
+    if (population == null || areaKm2 == null || areaKm2.signum() == 0) {
+      return null;
+    }
+    BigDecimal density = population.divide(areaKm2, 2, RoundingMode.HALF_UP);
+    if (density.compareTo(new BigDecimal("2000")) <= 0) {
+      return ZERO;
+    }
+    if (density.compareTo(new BigDecimal("20000")) >= 0) {
+      return HUNDRED.setScale(2, RoundingMode.HALF_UP);
+    }
+    return density
+        .subtract(new BigDecimal("2000"))
+        .multiply(HUNDRED)
+        .divide(new BigDecimal("18000"), 2, RoundingMode.HALF_UP);
+  }
+
+  /** Share of occupied households not on the public sewer network, as a 0–100 risk. */
+  public static BigDecimal sanitationRisk(BigDecimal occupiedHouseholds, BigDecimal onNetwork) {
+    if (occupiedHouseholds == null || onNetwork == null || occupiedHouseholds.signum() == 0) {
+      return null;
+    }
+    BigDecimal without = occupiedHouseholds.subtract(onNetwork).max(BigDecimal.ZERO);
+    return without.multiply(HUNDRED).divide(occupiedHouseholds, 2, RoundingMode.HALF_UP);
+  }
+
+  public static Pillar environmental(
+      BigDecimal heat, BigDecimal rain, BigDecimal air, BigDecimal fireScore) {
     return partial(
-        missing,
+        BigDecimal.ONE,
         new Term("heat_forecast", HEAT_WEIGHT, heat),
-        new Term("rain_forecast", RAIN_WEIGHT, rain));
+        new Term("rain_forecast", RAIN_WEIGHT, rain),
+        new Term("air_quality", AIR_WEIGHT, air),
+        new Term("fire", FIRE_WEIGHT, fireScore));
   }
 
   public static Pillar health(BigDecimal dengueScore) {
     return partial(
-        new ArrayList<>(List.of("respiratory")), new Term("dengue", DENGUE_WEIGHT, dengueScore));
+        BigDecimal.ONE,
+        new Term("dengue", DENGUE_WEIGHT, dengueScore),
+        new Term("respiratory_datasus", RESPIRATORY_WEIGHT, null));
   }
 
-  public static Pillar social() {
-    return new Pillar(null, ZERO, false, List.of("income", "vulnerability"));
+  public static Pillar social(BigDecimal density, BigDecimal sanitation) {
+    return partial(
+        BigDecimal.ONE,
+        new Term("population_density", DENSITY_WEIGHT, density),
+        new Term("sanitation", SANITATION_WEIGHT, sanitation),
+        new Term("income", INCOME_WEIGHT, null));
   }
 
   public static DayScore day(
-      OverallWeights weights, BigDecimal heat, BigDecimal rain, BigDecimal dengueScore) {
-    Pillar environmental = environmental(heat, rain);
+      OverallWeights weights,
+      BigDecimal heat,
+      BigDecimal rain,
+      BigDecimal air,
+      BigDecimal fireScore,
+      BigDecimal dengueScore,
+      BigDecimal density,
+      BigDecimal sanitation) {
+    Pillar environmental = environmental(heat, rain, air, fireScore);
     Pillar health = health(dengueScore);
-    Pillar social = social();
-    boolean complete = environmental.complete() && health.complete() && social.complete();
+    Pillar social = social(density, sanitation);
     BigDecimal overall =
-        complete ? weights.combine(environmental.score(), health.score(), social.score()) : null;
+        environmental.score() == null || health.score() == null || social.score() == null
+            ? null
+            : weights.combine(environmental.score(), health.score(), social.score());
     return new DayScore(
         environmental, health, social, overall, heat, rain, dengueScore, riskClass(overall));
   }
@@ -145,7 +221,8 @@ public final class ScoreRules {
 
   private record Term(String id, BigDecimal weight, BigDecimal value) {}
 
-  private static Pillar partial(List<String> missing, Term... terms) {
+  private static Pillar partial(BigDecimal totalWeight, Term... terms) {
+    List<String> missing = new ArrayList<>();
     BigDecimal weighted = BigDecimal.ZERO;
     BigDecimal used = BigDecimal.ZERO;
     for (Term term : terms) {
@@ -156,12 +233,12 @@ public final class ScoreRules {
       weighted = weighted.add(term.weight().multiply(term.value()));
       used = used.add(term.weight());
     }
-    if (used.signum() == 0) {
-      return new Pillar(null, ZERO, false, List.copyOf(missing));
+    BigDecimal coverage =
+        totalWeight.signum() == 0 ? ZERO : used.divide(totalWeight, 2, RoundingMode.HALF_UP);
+    if (used.signum() == 0 || coverage.compareTo(MINIMUM_COVERAGE) < 0) {
+      return new Pillar(null, coverage, false, List.copyOf(missing));
     }
     BigDecimal score = weighted.divide(used, 2, RoundingMode.HALF_UP);
-    boolean complete = missing.isEmpty();
-    return new Pillar(
-        score, used.setScale(2, RoundingMode.HALF_UP), complete, List.copyOf(missing));
+    return new Pillar(score, coverage, missing.isEmpty(), List.copyOf(missing));
   }
 }
