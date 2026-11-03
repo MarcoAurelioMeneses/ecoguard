@@ -22,7 +22,7 @@ jobs:
       - name: Test and static analysis
         run: ./backend/gradlew -p backend check --no-daemon
       - name: Cache OWASP NVD data
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.gradle/dependency-check-data
           key: dependency-check-nvd-${{ runner.os }}
