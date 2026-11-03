@@ -23,7 +23,7 @@ export function Overview() {
   return (
     <section className="stack">
       <div className="toolbar">
-        <h2>Indicators for {state.data[0]?.name ?? "the city"}</h2>
+        <h2>Indicators for {state.status === "ready" ? (state.data[0]?.name ?? "the city") : "the city"}</h2>
         <ViewToggle table={table} onChange={setTable} />
       </div>
       {state.status === "loading" ? <LoadingState label="Loading districts…" /> : null}
