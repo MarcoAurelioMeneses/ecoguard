@@ -1,25 +1,32 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 type Theme = "dark" | "light";
 
-function readTheme(): Theme {
+const listeners = new Set<() => void>();
+
+function emit() {
+  listeners.forEach((listener) => listener());
+}
+
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+}
+
+function snapshot(): Theme {
   return document.documentElement.classList.contains("light") ? "light" : "dark";
 }
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("dark");
-
-  useEffect(() => {
-    setTheme(readTheme());
-  }, []);
+  const theme = useSyncExternalStore(subscribe, snapshot, () => "dark" as const);
 
   function toggle() {
-    const next: Theme = readTheme() === "light" ? "dark" : "light";
+    const next: Theme = snapshot() === "light" ? "dark" : "light";
     document.documentElement.classList.toggle("light", next === "light");
     localStorage.setItem("ecoguard-theme", next);
-    setTheme(next);
+    emit();
   }
 
   return (

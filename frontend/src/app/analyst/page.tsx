@@ -5,7 +5,6 @@ export default function AnalystPage() {
   return (
     <>
       <PageView screen="04" />
-      <h1>AI City Analyst</h1>
       <AnalystChat />
     </>
   );

@@ -18,6 +18,7 @@ const sample: District = {
   source: "geosampa:wfs:geoportal:distrito_municipal",
   sourceUpdatedAt: null,
   geometry: { type: "Polygon", coordinates: [] },
+  score: null,
 };
 
 describe("useDistricts", () => {

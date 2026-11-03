@@ -8,7 +8,6 @@ export function DistrictIndex() {
   const { state, reload } = useDistricts();
   return (
     <>
-      <h1>Districts</h1>
       {state.status === "loading" ? <LoadingState label="Loading districts…" /> : null}
       {state.status === "error" ? <ErrorState message={state.message} onRetry={reload} /> : null}
       {state.status === "empty" ? (

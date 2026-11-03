@@ -24,9 +24,9 @@ export function DistrictDetail({ code }: { code: string }) {
   }
   return (
     <article className="stack">
-      <h1>{state.data.name}</h1>
+      <h2>{state.data.name}</h2>
       <p className="num">Code {state.data.code}</p>
-      <RiskMark level="nodata" />
+      <RiskMark level={state.data.score?.overallClass ?? "nodata"} />
       <p className="meta">
         Area {state.data.areaKm2 ?? "unknown"} km². Source {state.data.source}. Updated{" "}
         {state.data.sourceUpdatedAt ?? "unknown"}. Scores for this district have not been computed.

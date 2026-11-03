@@ -38,7 +38,8 @@ class DistrictControllerTest {
                     9.6,
                     "{\"type\":\"Polygon\",\"coordinates\":[]}",
                     "geosampa:wfs:geoportal:distrito_municipal",
-                    Instant.parse("2026-10-27T22:04:13.456Z"))));
+                    Instant.parse("2026-10-27T22:04:13.456Z"),
+                    null)));
     mvc.perform(get("/districts"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.type").value("FeatureCollection"))

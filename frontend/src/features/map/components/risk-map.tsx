@@ -27,7 +27,7 @@ export function RiskMap({ districts }: { districts: District[] }) {
     }
     let map: { remove: () => void } | undefined;
     let cancelled = false;
-    void mountDistrictMap(host.current, districts).then((created) => {
+    void mountDistrictMap(host.current, districts, layer).then((created) => {
       if (cancelled) {
         created.remove();
         return;
@@ -38,7 +38,7 @@ export function RiskMap({ districts }: { districts: District[] }) {
       cancelled = true;
       map?.remove();
     };
-  }, [districts, table]);
+  }, [districts, layer, table]);
 
   function choose(next: (typeof layers)[number]["id"]) {
     setLayer(next);

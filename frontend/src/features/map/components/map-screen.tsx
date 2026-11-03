@@ -8,7 +8,6 @@ export function MapScreen() {
   const { state, reload } = useDistricts();
   return (
     <>
-      <h1>Risk map</h1>
       {state.status === "loading" ? <LoadingState label="Loading the district layer…" /> : null}
       {state.status === "error" ? <ErrorState message={state.message} onRetry={reload} /> : null}
       {state.status === "empty" ? (

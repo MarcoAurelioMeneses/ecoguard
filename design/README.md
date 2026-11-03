@@ -4,14 +4,16 @@ Originals as delivered, plus this note. Portuguese copy in `LEIA-ME.md` and `des
 
 | Path | What it is |
 | --- | --- |
-| `design-system.md` | Tokens, type, components |
-| `tokens.css` | Dark on `:root`, light on `.light`. Copied into `frontend/shared/styles/` |
+| `design-system.md` | v0.2 tokens, type, components |
+| `tokens.css` | Dark on `:root`, light on `.light`. Copied into `frontend/src/styles/` |
 | `mockups/`, `html/` | Screens 00 through 06, dark and light |
+| `mockups/extras/estados-*.png` | Loading, empty, error, focus, and no-data sheet |
+| `uiux-review/auditoria.md` | v0.2 audit. Portuguese, left as delivered |
 | `logo/` | Vector icon and AI-generated PNG lockups |
 | `src/` | Generators. Not a runtime dependency |
 | `src/distritos-sp.geojson` | Dev fixture only. See below |
 
-The running app does not render these screens. `/` is reserved for screen 00. `scripts/check-design-sync.sh` checks the token and logo copies.
+`/` is screen 00. `scripts/check-design-sync.sh` checks the token and logo copies. Mockup numbers are examples and are not seeded.
 
 ## District fixture
 
@@ -31,5 +33,5 @@ It is not the ingestion source and it is not served to MapLibre. The source of t
 
 - Numbers on the mockups are examples. Do not seed them.
 - There is no observability screen.
-- Light-theme accent in the running app is `#076E94` (`--accent` on `.light`). Control borders use `--border-strong`. Body text stays at least 14px. The path `ecoguard-design/` (design-system v0.2, `extras/estados-*.png`, `uiux-review/auditoria.md`) was not in the workspace. Those token rules are applied here. Pixel comparison against the missing audit images is not done.
+- This folder is the v0.2 package. Light-theme accent is `#076E94`. Control borders use `--border-strong`. Body text stays at least 14px. The audit is `uiux-review/auditoria.md`. Mockup numbers stay examples.
 - Overall weights 0.40 / 0.35 / 0.25 are confirmed and configurable. The design-system sentence that still calls them a proposal is the original package text. `docs/risk-methodology.md` is the product rule.

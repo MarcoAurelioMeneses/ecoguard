@@ -19,10 +19,24 @@ a {
   color: var(--text);
 }
 
-a:focus-visible,
-button:focus-visible,
-textarea:focus-visible {
-  outline: 2px solid var(--text);
+.skip {
+  position: absolute;
+  left: -9999px;
+  top: 8px;
+  z-index: 9;
+  background: var(--accent);
+  color: var(--bg);
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.skip:focus {
+  left: 8px;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
 
@@ -30,6 +44,12 @@ textarea:focus-visible {
   display: grid;
   grid-template-columns: var(--sidebar) 1fr;
   min-height: 100vh;
+}
+
+.workspace {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .sidebar {
@@ -64,22 +84,77 @@ textarea:focus-visible {
   gap: 6px;
 }
 
+.nav-group {
+  margin: 16px 12px 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
 .nav a {
+  position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 40px;
-  padding: 8px 10px;
+  gap: 12px;
+  min-height: 44px;
+  padding: 10px 12px;
   border-radius: 10px;
   text-decoration: none;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 500;
   color: var(--muted);
+}
+
+.nav a:hover {
+  background: var(--elev);
+  color: var(--text);
 }
 
 .nav a[aria-current="page"] {
   background: var(--accent-bg);
   color: var(--accent);
+  font-weight: 600;
+}
+
+.nav a[aria-current="page"]::before {
+  content: "";
+  position: absolute;
+  left: -16px;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--accent);
+}
+
+.topbar {
+  min-height: 92px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.crumb {
+  display: flex;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.crumb a {
+  color: var(--accent);
+  font-weight: 500;
 }
 
 .sidebar-foot {
@@ -134,7 +209,7 @@ textarea:focus-visible {
 
 .control,
 textarea {
-  min-height: 36px;
+  min-height: 44px;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-ctl);
   background: var(--surface);
@@ -170,6 +245,14 @@ textarea {
 
 .formula {
   font-size: 20px;
+}
+
+.kpi-value {
+  margin: 8px 0;
+  font-size: 48px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
 }
 
 .data-table {

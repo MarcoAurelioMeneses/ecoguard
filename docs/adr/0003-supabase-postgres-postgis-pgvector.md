@@ -13,7 +13,7 @@ Sources also differ in size. InfoDengue and Open-Meteo return small JSON documen
 
 ## Decision
 
-Standardise on Postgres with the `postgis` and `vector` extensions. Local development uses a PostGIS 16 image with `postgresql-16-pgvector` installed. Schemas:
+Standardise on Postgres with the `postgis` and `vector` extensions. Local development uses the Postgres 18 image with `postgresql-18-postgis-3` and `postgresql-18-pgvector`. The package major must match the server. Schemas:
 
 - `raw` — landed payloads keyed by source and natural key
 - `staging` — typed cleaned tables, upserted on the same natural key

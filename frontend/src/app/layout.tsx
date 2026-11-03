@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono } from "next/font/google";
+import { headers } from "next/headers";
 import { AppShell } from "@/features/shell/components/app-shell";
 import "./globals.css";
 
@@ -14,11 +15,12 @@ export const metadata: Metadata = {
   icons: { icon: "/logo.svg" },
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
     <html lang="en" className={`${inter.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeBoot }} />
+        <script nonce={nonce} dangerouslySetInnerHTML={{ __html: themeBoot }} />
       </head>
       <body>
         <AppShell>{children}</AppShell>

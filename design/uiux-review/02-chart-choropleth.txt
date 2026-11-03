@@ -1,0 +1,52 @@
+## UI Pro Max Search Results
+**Domain:** chart | **Query:** choropleth risk map heatmap geographic
+**Source:** charts.csv | **Found:** 3 results
+
+### Result 1
+- **Data Type:** Geographic Data
+- **Keywords:** geographic, map, location, region, geo, spatial, choropleth, accessible chart, keyboard accessible chart
+- **Best Chart Type:** Choropleth Map or Bubble Map
+- **Secondary Options:** Geographic Heat Map
+- **When to Use:** Data has a regional/location dimension; spatial distribution is the core insight for the user
+- **When NOT to Use:** Regions have very different sizes making visual comparison misleading (use bar); mobile-primary context
+- **Data Volume Threshold:** <1000 regions: SVG; ≥1000: Canvas/WebGL (Deck.gl); global maps: tile-based rendering
+- **Color Guidance:** Single color gradient per region group. Categorized colors for discrete types. Legend with clear scale breaks
+- **Accessibility Grade:** deprecated: use Accessibility Risk
+- **Accessibility Risk:** risk:conditional
+- **Accessibility Notes:** Label regions directly and pair fills with boundaries or patterns; location meaning cannot depend on color alone.
+- **A11y Fallback:** Sortable region table plus geographic summary. Keyboard: arrow keys or labeled pan buttons move the map; +/- buttons zoom; Enter drills into a focused region; Back returns.
+- **Library Recommendation:** D3.js, Mapbox, Leaflet
+- **Interactive Level:** Pan + Zoom + Drill
+
+### Result 2
+- **Data Type:** Heatmap / Intensity
+- **Keywords:** heatmap, heat-map, intensity, density, matrix, calendar, accessible chart, keyboard accessible chart
+- **Best Chart Type:** Heat Map or Choropleth
+- **Secondary Options:** Grid Heat Map, Bubble Heat
+- **When to Use:** Showing intensity/density across a 2D grid; time-based patterns (e.g., activity by hour × day)
+- **When NOT to Use:** Fewer than 20 cells (use bar); user needs to read exact values; colorblind users without pattern fallback
+- **Data Volume Threshold:** Up to 10,000 cells efficiently; beyond that aggregate; calendar heatmap: 365 cells max per SVG
+- **Color Guidance:** Gradient: Cool (blue) to Hot (red). Divergent scale for ±data. Always include numeric color legend
+- **Accessibility Grade:** deprecated: use Accessibility Risk
+- **Accessibility Risk:** risk:conditional
+- **Accessibility Notes:** Print values or symbols in cells and use texture/labels in addition to the color scale. Do not rely on color alone.
+- **A11y Fallback:** Grid data table plus intensity summary. Keyboard: focus reveals cell values; +/- buttons zoom; Reset restores the grid.
+- **Library Recommendation:** D3.js, Plotly, ApexCharts
+- **Interactive Level:** Hover + Zoom
+
+### Result 3
+- **Data Type:** Process Mining
+- **Keywords:** process, mining, variants, path, bottleneck, log, event, accessible chart, keyboard accessible chart
+- **Best Chart Type:** Process Map / Graph
+- **Secondary Options:** Directed Acyclic Graph (DAG), Petri Net
+- **When to Use:** Analyzing event logs to visualize actual process flows; identifying bottlenecks and deviations in ops/product funnels
+- **When NOT to Use:** No event log data available; audience expects a static flowchart (use diagram tool); node count > 100 without pre-filtering
+- **Data Volume Threshold:** <30 nodes: SVG; 30–100: Canvas; >100: apply variant filtering (top 80% of cases) before rendering
+- **Color Guidance:** Happy path: #10B981 thick line. Deviations: #F59E0B thin line. Bottleneck nodes: #EF4444 fill
+- **Accessibility Grade:** deprecated: use Accessibility Risk
+- **Accessibility Risk:** risk:conditional
+- **Accessibility Notes:** Label nodes and paths and use shapes/line styles in addition to color; bottlenecks require text annotations. Do not rely on color alone.
+- **A11y Fallback:** Path summary table plus bottleneck narrative. Keyboard: Move buttons replace drag; focus reveals node details; Enter activates a node; Back returns.
+- **Library Recommendation:** React-Flow, Cytoscape.js, Recharts
+- **Interactive Level:** Drag + Node-Click
+
