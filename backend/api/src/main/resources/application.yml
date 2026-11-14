@@ -41,5 +41,9 @@ ecoguard:
   web-origin: ${ECOGUARD_WEB_ORIGIN:http://localhost:3000,http://127.0.0.1:3000}
   openai:
     api-key: ${OPENAI_API_KEY:}
+  agent:
+    jdbc-url: ${ECOGUARD_AGENT_JDBC_URL:${ECOGUARD_JDBC_URL:jdbc:postgresql://localhost:5432/ecoguard}}
+    username: ${ECOGUARD_AGENT_DB_USER:ecoguard_agent}
+    password: ${ECOGUARD_AGENT_DB_PASSWORD:ecoguard_agent}
   rate-limit:
     requests: 120

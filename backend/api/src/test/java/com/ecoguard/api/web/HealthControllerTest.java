@@ -9,6 +9,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.ecoguard.agent.CityAnalyst;
 import com.ecoguard.api.security.ApiSecurity;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;
@@ -49,5 +50,16 @@ class HealthControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"question\":\"\"}"))
         .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void missingModelIsUnavailableRatherThanAnError() throws Exception {
+    Mockito.when(analyst.answer(Mockito.anyString()))
+        .thenThrow(new IllegalStateException("OPENAI_API_KEY is not set"));
+    mvc.perform(
+            post("/analyst/questions")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"question\":\"chuva em Sé\"}"))
+        .andExpect(status().isServiceUnavailable());
   }
 }
