@@ -56,7 +56,15 @@ public class GeoSampaDistrictCollector implements SourcePort {
       throw new IllegalStateException(
           "GeoSampa distrito_municipal returned " + districts.size() + " features, expected 96");
     }
-    return new Extraction(sourceName(), List.of(), List.of(), List.of(), List.copyOf(districts));
+    return new Extraction(
+        sourceName(),
+        List.of(),
+        List.of(),
+        List.of(),
+        List.copyOf(districts),
+        List.of(),
+        List.of(),
+        List.of());
   }
 
   private JsonNode fetch(int startIndex) {

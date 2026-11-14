@@ -39,7 +39,8 @@ public class IngestionService {
     UUID runId = UUID.randomUUID();
     Instant started = Instant.now();
     try {
-      return transaction.execute(status -> useCase.execute(source, store, started, runId));
+      var extraction = source.extract(started);
+      return transaction.execute(status -> useCase.persist(extraction, store, started, runId));
     } catch (RuntimeException ex) {
       transaction.executeWithoutResult(
           status ->

@@ -13,20 +13,27 @@ final class HttpFetch {
   private HttpFetch() {}
 
   static <T> T get(RestClient http, String uri, Class<T> bodyType) {
-    return get(http, URI.create(uri), bodyType);
+    return get(http, URI.create(uri), bodyType, java.util.Map.of());
   }
 
   static <T> T get(RestClient http, URI uri, Class<T> bodyType) {
+    return get(http, uri, bodyType, java.util.Map.of());
+  }
+
+  static <T> T get(
+      RestClient http, URI uri, Class<T> bodyType, java.util.Map<String, String> headers) {
     RuntimeException last = null;
     for (int attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       try {
-        T body =
+        var spec =
             http.get()
                 .uri(uri)
                 .header("Accept", "application/json, text/plain, */*")
-                .header("User-Agent", "EcoGuard-ingestion/0.1")
-                .retrieve()
-                .body(bodyType);
+                .header("User-Agent", "EcoGuard-ingestion/0.1");
+        for (var header : headers.entrySet()) {
+          spec = spec.header(header.getKey(), header.getValue());
+        }
+        T body = spec.retrieve().body(bodyType);
         if (body == null) {
           throw new IllegalStateException("empty response from " + uri);
         }

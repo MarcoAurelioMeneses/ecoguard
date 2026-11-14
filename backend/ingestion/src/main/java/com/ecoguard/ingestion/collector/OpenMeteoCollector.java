@@ -52,7 +52,15 @@ public class OpenMeteoCollector implements SourcePort {
     for (OpenMeteoDaily row : rows) {
       records.add(new RawRecord(sourceName(), row.externalKey(), payload(row), extractedAt));
     }
-    return new Extraction(sourceName(), List.copyOf(records), List.of(), rows, List.of());
+    return new Extraction(
+        sourceName(),
+        List.copyOf(records),
+        List.of(),
+        rows,
+        List.of(),
+        List.of(),
+        List.of(),
+        List.of());
   }
 
   private JsonNode fetch(IngestionProperties.OpenMeteo source) {
@@ -63,10 +71,11 @@ public class OpenMeteoCollector implements SourcePort {
             .queryParam("daily", DAILY)
             .queryParam("timezone", source.timezone())
             .queryParam("forecast_days", source.forecastDays());
+    java.util.Map<String, String> headers = new java.util.HashMap<>();
     if (source.apiKey() != null && !source.apiKey().isBlank()) {
-      builder.queryParam("apikey", source.apiKey());
+      headers.put("Authorization", "Bearer " + source.apiKey());
     }
-    return HttpFetch.get(http, builder.build(true).toUri(), JsonNode.class);
+    return HttpFetch.get(http, builder.build(true).toUri(), JsonNode.class, headers);
   }
 
   private static Map<String, Object> payload(OpenMeteoDaily row) {

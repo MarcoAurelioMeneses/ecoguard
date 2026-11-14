@@ -1,5 +1,6 @@
 package com.ecoguard.domain.port;
 
+import com.ecoguard.domain.ingestion.Records;
 import com.ecoguard.domain.ingestion.Records.District;
 import com.ecoguard.domain.ingestion.Records.Extraction;
 import com.ecoguard.domain.ingestion.Records.InfoDengueAlert;
@@ -22,7 +23,22 @@ public final class Ports {
 
     int upsertDistricts(List<District> districts);
 
+    int upsertDistrictEnvironment(List<Records.DistrictEnvironmentDay> rows);
+
+    int upsertFires(List<Records.FireDay> days);
+
+    int upsertCensus(List<Records.CensusDistrict> rows);
+
+    /** Normalized district name to GeoSampa code. Used to attach census rows. */
+    Map<String, String> districtCodesByNormalizedName();
+
     void recordRun(JobRun run);
+  }
+
+  public interface DistrictSampler {
+    List<SamplePoint> points();
+
+    record SamplePoint(String code, double latitude, double longitude) {}
   }
 
   public interface SourcePort {

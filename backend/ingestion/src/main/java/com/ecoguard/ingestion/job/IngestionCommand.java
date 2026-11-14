@@ -18,9 +18,6 @@ public class IngestionCommand implements CommandLineRunner {
   private final IngestionProperties properties;
   private final ScoreJob scores;
   private final BackfillJob backfill;
-  private final com.ecoguard.ingestion.collector.OpenMeteoDistrictCollector districtWeather;
-  private final com.ecoguard.ingestion.collector.InpeFireCollector fires;
-  private final com.ecoguard.ingestion.collector.IbgeCensusCollector census;
   private final JobRuns runs;
 
   public IngestionCommand(
@@ -28,17 +25,11 @@ public class IngestionCommand implements CommandLineRunner {
       IngestionProperties properties,
       ScoreJob scores,
       BackfillJob backfill,
-      com.ecoguard.ingestion.collector.OpenMeteoDistrictCollector districtWeather,
-      com.ecoguard.ingestion.collector.InpeFireCollector fires,
-      com.ecoguard.ingestion.collector.IbgeCensusCollector census,
       JobRuns runs) {
     this.service = service;
     this.properties = properties;
     this.scores = scores;
     this.backfill = backfill;
-    this.districtWeather = districtWeather;
-    this.fires = fires;
-    this.census = census;
     this.runs = runs;
   }
 
@@ -48,19 +39,11 @@ public class IngestionCommand implements CommandLineRunner {
       backfill.run();
       return;
     }
-    java.time.Instant now = java.time.Instant.now();
-    if ("open-meteo-districts".equals(properties.job())) {
-      log.info(
-          "open-meteo-districts rows={}",
-          runs.record("open-meteo-districts", () -> districtWeather.extract(now)));
-      return;
-    }
-    if ("inpe-fires".equals(properties.job())) {
-      log.info("inpe-fires rows={}", runs.record("inpe-fires", () -> fires.extract(now)));
-      return;
-    }
-    if ("ibge-census".equals(properties.job())) {
-      log.info("ibge-census rows={}", runs.record("ibge-census", () -> census.extract(now)));
+    if ("open-meteo-districts".equals(properties.job())
+        || "inpe-fires".equals(properties.job())
+        || "ibge-census".equals(properties.job())) {
+      JobResult result = service.run(properties.job());
+      log.info("{} staging={}", result.source(), result.stagingUpserted());
       return;
     }
     if ("risk-scores".equals(properties.job())) {

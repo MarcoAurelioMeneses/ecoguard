@@ -1,32 +1,27 @@
 package com.ecoguard.ingestion.collector;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.getRequestedFor;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.ecoguard.domain.port.Ports.DistrictSampler;
+import com.ecoguard.domain.port.Ports.DistrictSampler.SamplePoint;
 import com.ecoguard.ingestion.config.BackfillProperties;
 import com.ecoguard.ingestion.config.IngestionProperties;
-import com.ecoguard.ingestion.support.PostgresFixture;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-import javax.sql.DataSource;
-import org.flywaydb.core.Flyway;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.simple.JdbcClient;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.web.client.RestClient;
-import org.testcontainers.DockerClientFactory;
-import org.testcontainers.containers.PostgreSQLContainer;
 
 class OpenMeteoDistrictCollectorTest {
   @RegisterExtension
@@ -35,30 +30,43 @@ class OpenMeteoDistrictCollectorTest {
           .options(WireMockConfiguration.wireMockConfig().dynamicPort())
           .build();
 
-  static JdbcTemplate jdbc;
-  static OpenMeteoDistrictCollector collector;
+  @Test
+  void readsWeatherAndAirWithoutPuttingTheKeyInTheUrl() {
+    wireMock.stubFor(
+        get(urlPathEqualTo("/forecast"))
+            .willReturn(
+                aResponse().withHeader("Content-Type", "application/json").withBody(forecast())));
+    wireMock.stubFor(
+        get(urlPathEqualTo("/air"))
+            .willReturn(
+                aResponse().withHeader("Content-Type", "application/json").withBody(air())));
+    var extraction = collector("secret-key").extract(Instant.parse("2026-11-03T00:00:00Z"));
+    assertEquals(96, extraction.districtEnvironment().size());
+    assertNotNull(extraction.districtEnvironment().get(0).temperatureMaxC());
+    assertNotNull(extraction.districtEnvironment().get(0).pm25Mean());
+    wireMock.verify(
+        getRequestedFor(urlPathEqualTo("/forecast"))
+            .withHeader("Authorization", equalTo("Bearer secret-key"))
+            .withoutQueryParam("apikey"));
+  }
 
-  @BeforeAll
-  static void migrate() {
-    Assumptions.assumeTrue(DockerClientFactory.instance().isDockerAvailable());
-    PostgreSQLContainer<?> postgres = PostgresFixture.start();
-    DataSource dataSource =
-        new DriverManagerDataSource(
-            postgres.getJdbcUrl(), postgres.getUsername(), postgres.getPassword());
-    Flyway.configure().dataSource(dataSource).locations("classpath:db/migration").load().migrate();
-    jdbc = new JdbcTemplate(dataSource);
-    jdbc.update(
-        """
-        INSERT INTO marts.districts (district_code, name, geom, source)
-        VALUES (
-          '1', 'One',
-          ST_Multi(ST_GeomFromText('POLYGON((-46.7 -23.6,-46.6 -23.6,-46.6 -23.5,-46.7 -23.5,-46.7 -23.6))', 4326)),
-          'geosampa:wfs:geoportal:distrito_municipal'),
-        (
-          '2', 'Two',
-          ST_Multi(ST_GeomFromText('POLYGON((-46.5 -23.6,-46.4 -23.6,-46.4 -23.5,-46.5 -23.5,-46.5 -23.6))', 4326)),
-          'geosampa:wfs:geoportal:distrito_municipal')
-        """);
+  @Test
+  void airFailureLeavesNoRowsToStore() {
+    wireMock.stubFor(
+        get(urlPathEqualTo("/forecast"))
+            .willReturn(
+                aResponse().withHeader("Content-Type", "application/json").withBody(forecast())));
+    wireMock.stubFor(get(urlPathEqualTo("/air")).willReturn(aResponse().withStatus(500)));
+    assertThrows(
+        RuntimeException.class, () -> collector("").extract(Instant.parse("2026-11-03T00:00:00Z")));
+  }
+
+  private static OpenMeteoDistrictCollector collector(String apiKey) {
+    List<SamplePoint> points = new ArrayList<>();
+    for (int i = 0; i < 96; i++) {
+      points.add(new SamplePoint(Integer.toString(i + 1), -23.5, -46.6));
+    }
+    DistrictSampler sampler = () -> points;
     IngestionProperties ingestion =
         new IngestionProperties(
             "",
@@ -66,7 +74,7 @@ class OpenMeteoDistrictCollectorTest {
                 "http://unused", 3550308, "dengue", 1, 53, null, null),
             new IngestionProperties.OpenMeteo(
                 wireMock.baseUrl() + "/forecast",
-                "",
+                apiKey,
                 -23.55,
                 -46.63,
                 "America/Sao_Paulo",
@@ -75,43 +83,19 @@ class OpenMeteoDistrictCollectorTest {
     BackfillProperties backfill =
         new BackfillProperties(
             1, wireMock.baseUrl() + "/air", "http://unused", "http://unused", "http://unused");
-    collector =
-        new OpenMeteoDistrictCollector(
-            RestClient.create(),
-            JdbcClient.create(dataSource),
-            new ObjectMapper(),
-            ingestion,
-            backfill,
-            new DataSourceTransactionManager(dataSource));
+    return new OpenMeteoDistrictCollector(
+        RestClient.create(), new ObjectMapper(), ingestion, backfill, sampler);
   }
 
-  @Test
-  void airQualityFailureRollsBackTheWeatherWrites() {
-    wireMock.stubFor(
-        get(urlPathEqualTo("/forecast"))
-            .willReturn(
-                aResponse().withHeader("Content-Type", "application/json").withBody(FORECAST)));
-    wireMock.stubFor(
-        get(urlPathEqualTo("/air")).willReturn(aResponse().withStatus(500).withBody("no")));
-    assertThrows(
-        RuntimeException.class,
-        () ->
-            collector.ingest(
-                List.of(
-                    new OpenMeteoDistrictCollector.Point("1", -23.55, -46.63),
-                    new OpenMeteoDistrictCollector.Point("2", -23.56, -46.64)),
-                Instant.parse("2026-11-03T00:00:00Z")));
-    assertEquals(
-        0,
-        jdbc.queryForObject(
-            "SELECT count(*) FROM staging.district_environment_daily", Integer.class));
+  private static String forecast() {
+    String day =
+        "{\"daily\":{\"time\":[\"2026-11-02\"],\"temperature_2m_max\":[30.0],\"precipitation_sum\":[1.0]}}";
+    return "[" + String.join(",", java.util.Collections.nCopies(8, day)) + "]";
   }
 
-  private static final String FORECAST =
-      """
-      [
-        {"daily":{"time":["2026-11-02"],"temperature_2m_max":[30.0],"precipitation_sum":[1.0]}},
-        {"daily":{"time":["2026-11-02"],"temperature_2m_max":[31.0],"precipitation_sum":[0.0]}}
-      ]
-      """;
+  private static String air() {
+    String hour =
+        "{\"hourly\":{\"time\":[\"2026-11-02T00:00\"],\"pm2_5\":[12.0],\"pm10\":[20.0],\"ozone\":[40.0]}}";
+    return "[" + String.join(",", java.util.Collections.nCopies(8, hour)) + "]";
+  }
 }
