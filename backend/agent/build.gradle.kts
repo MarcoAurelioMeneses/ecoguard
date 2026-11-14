@@ -17,6 +17,7 @@ dependencies {
     implementation(libs.postgresql)
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation(libs.wiremock)
     testImplementation(libs.testcontainers.junit)
     testImplementation(libs.testcontainers.postgresql)
     testImplementation(libs.flyway.core)
