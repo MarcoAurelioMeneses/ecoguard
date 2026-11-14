@@ -19,27 +19,40 @@ public class BackfillJob {
   private final InpeFireCollector fires;
   private final IbgeCensusCollector census;
   private final ScoreJob scores;
+  private final JobRuns runs;
 
   public BackfillJob(
       IngestionService ingestion,
       OpenMeteoDistrictCollector weather,
       InpeFireCollector fires,
       IbgeCensusCollector census,
-      ScoreJob scores) {
+      ScoreJob scores,
+      JobRuns runs) {
     this.ingestion = ingestion;
     this.weather = weather;
     this.fires = fires;
     this.census = census;
     this.scores = scores;
+    this.runs = runs;
   }
 
   public void run() {
-    Instant now = Instant.now();
-    log.info("backfill geosampa {}", ingestion.run("geosampa-districts"));
-    log.info("backfill infodengue {}", ingestion.run("infodengue"));
-    log.info("backfill open-meteo-districts rows={}", weather.extract(now));
-    log.info("backfill inpe-fires rows={}", fires.extract(now));
-    log.info("backfill ibge-census rows={}", census.extract(now));
-    log.info("backfill risk-scores upserted={}", scores.run());
+    runs.record(
+        "backfill",
+        () -> {
+          Instant now = Instant.now();
+          log.info("backfill geosampa {}", ingestion.run("geosampa-districts"));
+          log.info("backfill infodengue {}", ingestion.run("infodengue"));
+          log.info(
+              "backfill open-meteo-districts rows={}",
+              runs.record("open-meteo-districts", () -> weather.extract(now)));
+          log.info(
+              "backfill inpe-fires rows={}", runs.record("inpe-fires", () -> fires.extract(now)));
+          log.info(
+              "backfill ibge-census rows={}",
+              runs.record("ibge-census", () -> census.extract(now)));
+          log.info("backfill risk-scores upserted={}", runs.record("risk-scores", scores::run));
+          return 0;
+        });
   }
 }

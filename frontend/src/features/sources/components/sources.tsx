@@ -23,6 +23,11 @@ export function Sources() {
           social ({config.data.status})
         </p>
       ) : null}
+      <h2>Atribuição</h2>
+      <p>
+        Weather data by Open-Meteo.com. Air quality data by Open-Meteo.com. Licença CC BY 4.0. Focos de
+        queimada: INPE Programa Queimadas. Censo: IBGE. Dengue: Fiocruz/InfoDengue.
+      </p>
       <table className="data-table">
         <caption className="sr-only">Fontes de dados</caption>
         <thead>

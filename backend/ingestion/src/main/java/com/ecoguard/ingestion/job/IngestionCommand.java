@@ -21,6 +21,7 @@ public class IngestionCommand implements CommandLineRunner {
   private final com.ecoguard.ingestion.collector.OpenMeteoDistrictCollector districtWeather;
   private final com.ecoguard.ingestion.collector.InpeFireCollector fires;
   private final com.ecoguard.ingestion.collector.IbgeCensusCollector census;
+  private final JobRuns runs;
 
   public IngestionCommand(
       IngestionService service,
@@ -29,7 +30,8 @@ public class IngestionCommand implements CommandLineRunner {
       BackfillJob backfill,
       com.ecoguard.ingestion.collector.OpenMeteoDistrictCollector districtWeather,
       com.ecoguard.ingestion.collector.InpeFireCollector fires,
-      com.ecoguard.ingestion.collector.IbgeCensusCollector census) {
+      com.ecoguard.ingestion.collector.IbgeCensusCollector census,
+      JobRuns runs) {
     this.service = service;
     this.properties = properties;
     this.scores = scores;
@@ -37,6 +39,7 @@ public class IngestionCommand implements CommandLineRunner {
     this.districtWeather = districtWeather;
     this.fires = fires;
     this.census = census;
+    this.runs = runs;
   }
 
   @Override
@@ -45,20 +48,23 @@ public class IngestionCommand implements CommandLineRunner {
       backfill.run();
       return;
     }
+    java.time.Instant now = java.time.Instant.now();
     if ("open-meteo-districts".equals(properties.job())) {
-      log.info("open-meteo-districts rows={}", districtWeather.extract(java.time.Instant.now()));
+      log.info(
+          "open-meteo-districts rows={}",
+          runs.record("open-meteo-districts", () -> districtWeather.extract(now)));
       return;
     }
     if ("inpe-fires".equals(properties.job())) {
-      log.info("inpe-fires rows={}", fires.extract(java.time.Instant.now()));
+      log.info("inpe-fires rows={}", runs.record("inpe-fires", () -> fires.extract(now)));
       return;
     }
     if ("ibge-census".equals(properties.job())) {
-      log.info("ibge-census rows={}", census.extract(java.time.Instant.now()));
+      log.info("ibge-census rows={}", runs.record("ibge-census", () -> census.extract(now)));
       return;
     }
     if ("risk-scores".equals(properties.job())) {
-      int written = scores.run();
+      int written = runs.record("risk-scores", scores::run);
       log.info("risk-scores upserted={}", written);
       return;
     }

@@ -10,6 +10,7 @@ import com.ecoguard.domain.risk.ScoreRules;
 import com.ecoguard.domain.risk.ScoreRules.DayScore;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,7 +24,7 @@ public final class ComputeRiskScores {
       int geocode,
       String disease) {
     OverallWeights weights = readings.weights(configKey);
-    DengueReading dengue = readings.latestDengue(geocode, disease);
+    List<DengueReading> dengue = readings.dengueReadings(geocode, disease);
     List<PersistedScore> rows = new ArrayList<>();
     for (DistrictDay observation : readings.districtDays()) {
       BigDecimal heat = ScoreRules.heatForecast(observation.temperatureMaxC());
@@ -54,11 +55,22 @@ public final class ComputeRiskScores {
     return written;
   }
 
-  private static BigDecimal dengueScore(DengueReading dengue, java.time.LocalDate date) {
-    if (dengue == null || dengue.weekStart().isAfter(date)) {
+  /** The reading whose week contains the date. Weeks are [start, start+7). */
+  static BigDecimal dengueScore(List<DengueReading> readings, LocalDate date) {
+    DengueReading match = null;
+    for (DengueReading reading : readings) {
+      LocalDate start = reading.weekStart();
+      if (start == null || start.isAfter(date) || !date.isBefore(start.plusDays(7))) {
+        continue;
+      }
+      if (match == null || start.isAfter(match.weekStart())) {
+        match = reading;
+      }
+    }
+    if (match == null) {
       return null;
     }
-    return ScoreRules.dengue(dengue.level(), dengue.incidencePer100k());
+    return ScoreRules.dengue(match.level(), match.incidencePer100k());
   }
 
   private static String grain(DayScore day) {

@@ -22,7 +22,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 public class InfoDengueCollector implements SourcePort {
   private static final Set<String> DISEASES = Set.of("dengue", "chikungunya", "zika");
-  private static final String USER_AGENT = "EcoGuard-ingestion/0.1";
 
   private final RestClient http;
   private final IngestionProperties properties;
@@ -81,13 +80,7 @@ public class InfoDengueCollector implements SourcePort {
             .queryParam("ey_end", year)
             .build(true)
             .toUriString();
-    JsonNode body =
-        http.get()
-            .uri(uri)
-            .header("Accept", "application/json")
-            .header("User-Agent", USER_AGENT)
-            .retrieve()
-            .body(JsonNode.class);
+    JsonNode body = HttpFetch.get(http, uri, JsonNode.class);
     if (body == null) {
       throw new IllegalStateException("InfoDengue returned an empty body for " + year);
     }

@@ -68,6 +68,24 @@ public class JdbcScoreStore implements Readings, Writer {
         :environmental_coverage, :health_coverage, :social_coverage,
         :environmental_complete, :health_complete, :social_complete,
         COALESCE(string_to_array(NULLIF(:missing, ''), ','), '{}'), :grain_note, :computed_at)
+      ON CONFLICT (district_code, score_date) DO UPDATE SET
+        config_key = EXCLUDED.config_key,
+        environmental_score = EXCLUDED.environmental_score,
+        health_score = EXCLUDED.health_score,
+        social_score = EXCLUDED.social_score,
+        overall_score = EXCLUDED.overall_score,
+        heat_score = EXCLUDED.heat_score,
+        rain_score = EXCLUDED.rain_score,
+        dengue_score = EXCLUDED.dengue_score,
+        environmental_coverage = EXCLUDED.environmental_coverage,
+        health_coverage = EXCLUDED.health_coverage,
+        social_coverage = EXCLUDED.social_coverage,
+        environmental_complete = EXCLUDED.environmental_complete,
+        health_complete = EXCLUDED.health_complete,
+        social_complete = EXCLUDED.social_complete,
+        missing_indicators = EXCLUDED.missing_indicators,
+        grain_note = EXCLUDED.grain_note,
+        computed_at = EXCLUDED.computed_at
       """;
 
   private final JdbcClient jdbc;
@@ -132,14 +150,13 @@ public class JdbcScoreStore implements Readings, Writer {
   }
 
   @Override
-  public DengueReading latestDengue(int geocode, String disease) {
+  public List<DengueReading> dengueReadings(int geocode, String disease) {
     return jdbc.sql(
             """
             SELECT epi_week_start, alert_level, incidence_per_100k
             FROM staging.infodengue_alerts
             WHERE geocode = :geocode AND disease = :disease
-            ORDER BY epi_week_start DESC
-            LIMIT 1
+            ORDER BY epi_week_start
             """)
         .param("geocode", geocode)
         .param("disease", disease)
@@ -149,8 +166,7 @@ public class JdbcScoreStore implements Readings, Writer {
                     rs.getDate("epi_week_start").toLocalDate(),
                     (Integer) rs.getObject("alert_level"),
                     rs.getBigDecimal("incidence_per_100k")))
-        .optional()
-        .orElse(null);
+        .list();
   }
 
   @Override

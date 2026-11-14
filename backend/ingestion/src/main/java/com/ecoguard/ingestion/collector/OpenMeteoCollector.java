@@ -19,7 +19,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class OpenMeteoCollector implements SourcePort {
-  private static final String USER_AGENT = "EcoGuard-ingestion/0.1";
   private static final String DAILY =
       "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_hours,wind_speed_10m_max";
 
@@ -67,12 +66,7 @@ public class OpenMeteoCollector implements SourcePort {
     if (source.apiKey() != null && !source.apiKey().isBlank()) {
       builder.queryParam("apikey", source.apiKey());
     }
-    return http.get()
-        .uri(builder.build(true).toUri())
-        .header("Accept", "application/json")
-        .header("User-Agent", USER_AGENT)
-        .retrieve()
-        .body(JsonNode.class);
+    return HttpFetch.get(http, builder.build(true).toUri(), JsonNode.class);
   }
 
   private static Map<String, Object> payload(OpenMeteoDaily row) {

@@ -40,7 +40,8 @@ public final class ScoreInputs {
 
     List<DistrictDay> districtDays();
 
-    DengueReading latestDengue(int geocode, String disease);
+    /** Every stored epidemiological week, oldest first. A week covers seven days from its start. */
+    List<DengueReading> dengueReadings(int geocode, String disease);
 
     OverallWeights weights(String configKey);
   }

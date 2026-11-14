@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -26,39 +28,54 @@ public class OpenMeteoDistrictCollector {
   private final ObjectMapper mapper;
   private final IngestionProperties ingestion;
   private final BackfillProperties backfill;
+  private final TransactionTemplate transaction;
 
   public OpenMeteoDistrictCollector(
       RestClient http,
       JdbcClient jdbc,
       ObjectMapper mapper,
       IngestionProperties ingestion,
-      BackfillProperties backfill) {
+      BackfillProperties backfill,
+      PlatformTransactionManager transactions) {
     this.http = http;
     this.jdbc = jdbc;
     this.mapper = mapper;
     this.ingestion = ingestion;
     this.backfill = backfill;
+    this.transaction = new TransactionTemplate(transactions);
   }
 
   public int extract(Instant extractedAt) {
-    List<Point> points =
-        jdbc.sql(
-                """
-                SELECT district_code,
-                       ST_Y(ST_PointOnSurface(geom)) AS lat,
-                       ST_X(ST_PointOnSurface(geom)) AS lon
-                FROM marts.districts
-                ORDER BY district_code
-                """)
-            .query(
-                (rs, row) ->
-                    new Point(
-                        rs.getString("district_code"), rs.getDouble("lat"), rs.getDouble("lon")))
-            .list();
+    List<Point> points = loadPoints();
     if (points.size() != 96) {
       throw new IllegalStateException(
           "need 96 districts before Open-Meteo sampling, found " + points.size());
     }
+    return ingest(points, extractedAt);
+  }
+
+  /** One transaction for the whole sample. A later batch failure rolls back earlier writes. */
+  int ingest(List<Point> points, Instant extractedAt) {
+    Integer written = transaction.execute(status -> writeAll(points, extractedAt));
+    return written == null ? 0 : written;
+  }
+
+  private List<Point> loadPoints() {
+    return jdbc.sql(
+            """
+            SELECT district_code,
+                   ST_Y(ST_PointOnSurface(geom)) AS lat,
+                   ST_X(ST_PointOnSurface(geom)) AS lon
+            FROM marts.districts
+            ORDER BY district_code
+            """)
+        .query(
+            (rs, row) ->
+                new Point(rs.getString("district_code"), rs.getDouble("lat"), rs.getDouble("lon")))
+        .list();
+  }
+
+  private int writeAll(List<Point> points, Instant extractedAt) {
     int written = 0;
     for (int i = 0; i < points.size(); i += BATCH) {
       List<Point> batch = points.subList(i, Math.min(points.size(), i + BATCH));
@@ -156,13 +173,7 @@ public class OpenMeteoDistrictCollector {
     if (ingestion.openMeteo().apiKey() != null && !ingestion.openMeteo().apiKey().isBlank()) {
       builder.queryParam("apikey", ingestion.openMeteo().apiKey());
     }
-    JsonNode body =
-        http.get()
-            .uri(builder.build(true).toUri())
-            .header("Accept", "application/json")
-            .header("User-Agent", "EcoGuard-ingestion/0.1")
-            .retrieve()
-            .body(JsonNode.class);
+    JsonNode body = HttpFetch.get(http, builder.build(true).toUri(), JsonNode.class);
     if (body != null && body.path("error").asBoolean(false)) {
       throw new IllegalStateException("Open-Meteo error: " + body.path("reason").asText());
     }
@@ -238,5 +249,5 @@ public class OpenMeteoDistrictCollector {
     return acc[metric + 3] == 0 ? null : acc[metric] / acc[metric + 3];
   }
 
-  private record Point(String code, double lat, double lon) {}
+  record Point(String code, double lat, double lon) {}
 }

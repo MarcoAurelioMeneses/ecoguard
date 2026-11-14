@@ -99,12 +99,7 @@ public class IbgeCensusCollector {
   }
 
   private void read(String url, RowConsumer consumer) {
-    byte[] zip =
-        http.get()
-            .uri(url)
-            .header("User-Agent", "EcoGuard-ingestion/0.1")
-            .retrieve()
-            .body(byte[].class);
+    byte[] zip = HttpFetch.get(http, url, byte[].class);
     if (zip == null) {
       throw new IllegalStateException("IBGE download was empty: " + url);
     }

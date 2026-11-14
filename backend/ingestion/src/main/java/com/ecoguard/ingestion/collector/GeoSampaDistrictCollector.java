@@ -72,13 +72,7 @@ public class GeoSampaDistrictCollector implements SourcePort {
             .queryParam("startIndex", startIndex)
             .build(true)
             .toUriString();
-    JsonNode body =
-        http.get()
-            .uri(uri)
-            .header("Accept", "application/json")
-            .header("User-Agent", "EcoGuard-ingestion/0.1")
-            .retrieve()
-            .body(JsonNode.class);
+    JsonNode body = HttpFetch.get(http, uri, JsonNode.class);
     if (body == null || !body.path("features").isArray()) {
       throw new IllegalStateException("GeoSampa WFS did not return a FeatureCollection");
     }

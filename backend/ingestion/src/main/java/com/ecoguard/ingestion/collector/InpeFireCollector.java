@@ -47,12 +47,7 @@ public class InpeFireCollector {
   }
 
   private List<String> listedFiles() {
-    String html =
-        http.get()
-            .uri(backfill.inpeDailyCsv())
-            .header("User-Agent", "EcoGuard-ingestion/0.1")
-            .retrieve()
-            .body(String.class);
+    String html = HttpFetch.get(http, backfill.inpeDailyCsv(), String.class);
     if (html == null) {
       throw new IllegalStateException("INPE daily index was empty");
     }
@@ -69,12 +64,7 @@ public class InpeFireCollector {
   }
 
   private List<double[]> hotspotsInSaoPaulo(String file) {
-    String csv =
-        http.get()
-            .uri(backfill.inpeDailyCsv() + file)
-            .header("User-Agent", "EcoGuard-ingestion/0.1")
-            .retrieve()
-            .body(String.class);
+    String csv = HttpFetch.get(http, backfill.inpeDailyCsv() + file, String.class);
     if (csv == null) {
       throw new IllegalStateException("INPE file was empty: " + file);
     }
