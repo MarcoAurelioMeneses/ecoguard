@@ -16,6 +16,7 @@
 .light{
   --bg:#F4F7F9; --surface:#FFFFFF; --elev:#EEF3F6; --border:#D5DEE5; --border-strong:#7C8D9A;
   --text:#0E1A24; --muted:#556574; --accent:#076E94; --accent-bg:rgba(7,110,148,.10); --ring:#076E94;
+  --baixo:#369D78; --moderado:#AF870D; --alto:#DD7010; --critico:#E5484D;       /* v0.2.1: preenchimentos claros ≥ 3:1 sobre --surface e --bg */
   --t-baixo:#1B7A58; --t-moderado:#80620A; --t-alto:#AE5208; --t-critico:#C0272D;
   --mapstroke:#FFFFFF; --nodata:#E3EAEF; --pat:rgba(14,26,36,.5);
 }
