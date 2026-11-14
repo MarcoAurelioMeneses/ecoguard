@@ -1,4 +1,4 @@
-package com.ecoguard.api.district;
+package com.ecoguard.application;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+/** Read port for district geography and scores. JDBC stays in the API adapter. */
 public interface DistrictReadModel {
   List<DistrictView> list();
 

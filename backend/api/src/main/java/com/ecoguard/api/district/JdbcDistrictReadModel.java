@@ -1,9 +1,13 @@
 package com.ecoguard.api.district;
 
+import com.ecoguard.application.DistrictReadModel;
 import com.ecoguard.domain.risk.ScoreRules;
 import java.math.BigDecimal;
 import java.sql.Date;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
@@ -22,7 +26,9 @@ public class JdbcDistrictReadModel implements DistrictReadModel {
       LEFT JOIN LATERAL (
         SELECT *
         FROM marts.district_risk_scores
-        WHERE district_code = d.district_code AND config_key = 'default'
+        WHERE district_code = d.district_code
+          AND config_key = 'default'
+          AND score_date <= CURRENT_DATE
         ORDER BY score_date DESC
         LIMIT 1
       ) s ON true
@@ -72,13 +78,14 @@ public class JdbcDistrictReadModel implements DistrictReadModel {
         jdbc.sql(
                 """
                 SELECT score_date,
-                       max(heat_score) AS heat_score,
-                       max(rain_score) AS rain_score,
-                       max(dengue_score) AS dengue_score,
-                       max(environmental_score) AS environmental_score,
-                       max(health_score) AS health_score
+                       round(avg(heat_score), 2) AS heat_score,
+                       round(avg(rain_score), 2) AS rain_score,
+                       round(avg(dengue_score), 2) AS dengue_score,
+                       round(avg(environmental_score), 2) AS environmental_score,
+                       round(avg(health_score), 2) AS health_score
                 FROM marts.district_risk_scores
                 WHERE config_key = 'default'
+                  AND score_date <= CURRENT_DATE
                 GROUP BY score_date
                 ORDER BY score_date
                 """)
@@ -92,11 +99,41 @@ public class JdbcDistrictReadModel implements DistrictReadModel {
                         rs.getBigDecimal("environmental_score"),
                         rs.getBigDecimal("health_score")))
             .list();
-    ScoreSnapshot latest = list().stream().findFirst().map(DistrictView::score).orElse(null);
+    ScoreSnapshot latest =
+        jdbc
+            .sql(
+                """
+                SELECT max(score_date) AS score_date,
+                       round(avg(environmental_score), 2) AS environmental_score,
+                       round(avg(health_score), 2) AS health_score,
+                       round(avg(social_score), 2) AS social_score,
+                       round(avg(overall_score), 2) AS overall_score,
+                       round(avg(heat_score), 2) AS heat_score,
+                       round(avg(rain_score), 2) AS rain_score,
+                       round(avg(dengue_score), 2) AS dengue_score,
+                       round(avg(environmental_coverage), 3) AS environmental_coverage,
+                       round(avg(health_coverage), 3) AS health_coverage,
+                       COALESCE(bool_and(environmental_complete), false) AS environmental_complete,
+                       COALESCE(bool_and(health_complete), false) AS health_complete,
+                       COALESCE(bool_and(social_complete), false) AS social_complete
+                FROM marts.district_risk_scores
+                WHERE config_key = 'default'
+                  AND score_date = (
+                    SELECT max(score_date)
+                    FROM marts.district_risk_scores
+                    WHERE config_key = 'default' AND score_date <= CURRENT_DATE
+                  )
+                """)
+            .query((rs, row) -> citySnapshot(rs))
+            .list()
+            .stream()
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
     return new CityScores(latest, series);
   }
 
-  private static DistrictView map(java.sql.ResultSet rs, int row) throws java.sql.SQLException {
+  private static DistrictView map(ResultSet rs, int row) throws SQLException {
     return new DistrictView(
         rs.getString("district_code"),
         rs.getString("name"),
@@ -111,11 +148,23 @@ public class JdbcDistrictReadModel implements DistrictReadModel {
         snapshot(rs));
   }
 
-  private static ScoreSnapshot snapshot(java.sql.ResultSet rs) throws java.sql.SQLException {
+  private static ScoreSnapshot citySnapshot(ResultSet rs) throws SQLException {
+    if (rs.getDate("score_date") == null) {
+      return null;
+    }
+    return scored(rs, "city mean of district scores");
+  }
+
+  private static ScoreSnapshot snapshot(ResultSet rs) throws SQLException {
     Date date = rs.getDate("score_date");
     if (date == null) {
       return null;
     }
+    return scored(rs, rs.getString("grain_note"));
+  }
+
+  private static ScoreSnapshot scored(ResultSet rs, String grainNote) throws SQLException {
+    Date date = rs.getDate("score_date");
     BigDecimal environmental = rs.getBigDecimal("environmental_score");
     BigDecimal health = rs.getBigDecimal("health_score");
     BigDecimal social = rs.getBigDecimal("social_score");
@@ -138,6 +187,6 @@ public class JdbcDistrictReadModel implements DistrictReadModel {
         rs.getBoolean("environmental_complete"),
         rs.getBoolean("health_complete"),
         rs.getBoolean("social_complete"),
-        rs.getString("grain_note"));
+        grainNote);
   }
 }

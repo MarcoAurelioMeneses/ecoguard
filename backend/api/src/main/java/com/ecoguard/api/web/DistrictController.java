@@ -1,8 +1,8 @@
 package com.ecoguard.api.web;
 
-import com.ecoguard.api.district.DistrictReadModel;
-import com.ecoguard.api.district.DistrictReadModel.DistrictView;
-import com.ecoguard.api.district.DistrictReadModel.RiskConfigView;
+import com.ecoguard.application.DistrictReadModel;
+import com.ecoguard.application.DistrictReadModel.DistrictView;
+import com.ecoguard.application.DistrictReadModel.RiskConfigView;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
