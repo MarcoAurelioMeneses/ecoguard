@@ -5,8 +5,8 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.ecoguard.api.district.DistrictReadModel;
 import com.ecoguard.api.security.ApiSecurity;
+import com.ecoguard.application.DistrictReadModel;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
