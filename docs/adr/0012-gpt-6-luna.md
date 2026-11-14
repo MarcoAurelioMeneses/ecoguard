@@ -1,4 +1,4 @@
-# ADR 0011 — Analyst default model is gpt-6-luna
+# ADR 0012 — Analyst default model is gpt-6-luna
 
 - Status: accepted
 - Date: 2026-11-14
@@ -22,5 +22,5 @@ The Spring AI chat model is `${OPENAI_MODEL:gpt-6-luna}`. Unset, it is `gpt-6-lu
 
 ## Consequences
 
-- ADR 0006 still describes the tool boundary. Its model name is superseded here.
+- This record is the default model id and the Standard price row. The analyst contract, including the property `ecoguard.analyst.model`, is decided separately. The process currently maps `OPENAI_MODEL` onto the Spring AI option.
 - Batch, Flex, Fast, and Ultrafast prices are not the analyst default and are not in `CostGuard`.
