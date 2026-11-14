@@ -17,8 +17,10 @@ spring:
       api-key: ${OPENAI_API_KEY:local-not-configured}
       chat:
         options:
-          # gpt-4o-mini shuts down on 2027-01-14. Override with OPENAI_MODEL.
-          model: ${OPENAI_MODEL:gpt-6-luna}
+          # Chat Completions function calling on gpt-6-luna requires reasoning_effort=none.
+          # temperature is accepted at that effort (Spring AI default 0.7) and rejected otherwise.
+          model: ${ecoguard.analyst.model}
+          reasoning-effort: ${ecoguard.analyst.reasoning-effort}
 springdoc:
   api-docs:
     path: /openapi.json
@@ -42,5 +44,15 @@ ecoguard:
   web-origin: ${ECOGUARD_WEB_ORIGIN:http://localhost:3000,http://127.0.0.1:3000}
   openai:
     api-key: ${OPENAI_API_KEY:}
+  analyst:
+    model: ${ECOGUARD_ANALYST_MODEL:gpt-6-luna}
+    reasoning-effort: ${ECOGUARD_ANALYST_REASONING_EFFORT:none}
+    # USD per 1M tokens. Standard short-context row for gpt-6-luna.
+    # https://developers.openai.com/api/docs/pricing
+    pricing:
+      "[gpt-6-luna]":
+        input: 0.10
+        cached-input: 0.01
+        output: 0.50
   rate-limit:
     requests: 120

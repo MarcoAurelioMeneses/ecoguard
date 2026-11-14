@@ -1,11 +1,14 @@
 package com.ecoguard.agent;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@EnableConfigurationProperties(AnalystPricing.class)
 public class AnalystConfiguration {
   static final String SYSTEM =
       """
@@ -18,8 +21,14 @@ public class AnalystConfiguration {
 
   @Bean
   @ConditionalOnProperty(prefix = "ecoguard.openai", name = "api-key")
-  ChatClient analystChatClient(ChatClient.Builder builder, AnalystTools tools) {
-    return builder.defaultSystem(SYSTEM).defaultTools(tools).build();
+  ChatClient analystChatClient(
+      ChatClient.Builder builder, AnalystTools tools, AnalystPricing pricing) {
+    OpenAiChatOptions options =
+        OpenAiChatOptions.builder()
+            .model(pricing.getModel())
+            .reasoningEffort(pricing.getReasoningEffort())
+            .build();
+    return builder.defaultOptions(options).defaultSystem(SYSTEM).defaultTools(tools).build();
   }
 
   @Bean
