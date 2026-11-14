@@ -1,7 +1,10 @@
 package com.ecoguard.ingestion.score;
 
+import com.ecoguard.domain.ingestion.CensusNames;
+import com.ecoguard.domain.risk.CovisaDengue.Edition;
 import com.ecoguard.domain.risk.OverallWeights;
 import com.ecoguard.domain.risk.ScoreInputs.DengueReading;
+import com.ecoguard.domain.risk.ScoreInputs.DistrictCovisa;
 import com.ecoguard.domain.risk.ScoreInputs.DistrictDay;
 import com.ecoguard.domain.risk.ScoreInputs.ForecastDay;
 import com.ecoguard.domain.risk.ScoreInputs.PersistedScore;
@@ -10,7 +13,10 @@ import com.ecoguard.domain.risk.ScoreInputs.Writer;
 import com.ecoguard.domain.risk.ScoreRules.DayScore;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
@@ -167,6 +173,45 @@ public class JdbcScoreStore implements Readings, Writer {
                     (Integer) rs.getObject("alert_level"),
                     rs.getBigDecimal("incidence_per_100k")))
         .list();
+  }
+
+  @Override
+  public List<DistrictCovisa> covisaEditions() {
+    Map<String, String> codes = new HashMap<>();
+    jdbc.sql("SELECT district_code, name FROM marts.districts")
+        .query(
+            (rs, row) -> {
+              codes.put(CensusNames.normalize(rs.getString("name")), rs.getString("district_code"));
+              return 1;
+            })
+        .list();
+    List<DistrictCovisa> rows = new ArrayList<>();
+    jdbc.sql(
+            """
+            SELECT district_name, epi_year, epi_week, week_start, week_end,
+                   cumulative_cases, incidence_per_100k
+            FROM staging.covisa_dengue_districts
+            ORDER BY epi_year, epi_week
+            """)
+        .query(
+            (rs, row) -> {
+              String code = codes.get(CensusNames.normalize(rs.getString("district_name")));
+              if (code != null) {
+                rows.add(
+                    new DistrictCovisa(
+                        code,
+                        new Edition(
+                            rs.getInt("epi_year"),
+                            rs.getInt("epi_week"),
+                            rs.getDate("week_start").toLocalDate(),
+                            rs.getDate("week_end").toLocalDate(),
+                            rs.getInt("cumulative_cases"),
+                            rs.getBigDecimal("incidence_per_100k"))));
+              }
+              return 1;
+            })
+        .list();
+    return rows;
   }
 
   @Override

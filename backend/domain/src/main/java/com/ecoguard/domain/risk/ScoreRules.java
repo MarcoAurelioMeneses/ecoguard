@@ -144,14 +144,13 @@ public final class ScoreRules {
     return without.multiply(HUNDRED).divide(occupiedHouseholds, 2, RoundingMode.HALF_UP);
   }
 
-  public static Pillar environmental(
-      BigDecimal heat, BigDecimal rain, BigDecimal air, BigDecimal fireScore) {
+  /** INPE hotspot counts stay informational. They are not an environmental KPI. */
+  public static Pillar environmental(BigDecimal heat, BigDecimal rain, BigDecimal air) {
     return partial(
-        BigDecimal.ONE,
+        new BigDecimal("0.85"),
         new Term("heat_forecast", HEAT_WEIGHT, heat),
         new Term("rain_forecast", RAIN_WEIGHT, rain),
-        new Term("air_quality", AIR_WEIGHT, air),
-        new Term("fire", FIRE_WEIGHT, fireScore));
+        new Term("air_quality", AIR_WEIGHT, air));
   }
 
   public static Pillar health(BigDecimal dengueScore) {
@@ -174,11 +173,10 @@ public final class ScoreRules {
       BigDecimal heat,
       BigDecimal rain,
       BigDecimal air,
-      BigDecimal fireScore,
       BigDecimal dengueScore,
       BigDecimal density,
       BigDecimal sanitation) {
-    Pillar environmental = environmental(heat, rain, air, fireScore);
+    Pillar environmental = environmental(heat, rain, air);
     Pillar health = health(dengueScore);
     Pillar social = social(density, sanitation);
     BigDecimal overall =

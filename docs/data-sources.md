@@ -135,6 +135,15 @@ BDMEP (`https://bdmep.inmet.gov.br/`) is an email-and-queue CSV workflow, not an
 
 A third-party description of a JSON API under `terrabrasilis.dpi.inpe.br/queimadas/bdqueimadas/api` was **not** used as the contract, because the CSV tree is the access method INPE documents and the one this check actually read.
 
+## COVISA arbovirus bulletins
+
+| | |
+| --- | --- |
+| What | Cumulative confirmed dengue and incidence by administrative district. Section 4, Quadro 10. |
+| Access | PDF bulletins published by the São Paulo municipal health secretariat. |
+| Licence | use with source citation; licence not verified |
+| Score | Four-week incidence from the edition valid on the score date. InfoDengue remains ingested and is not the district score. |
+
 ## CEMADEN
 
 | | |
@@ -146,7 +155,7 @@ A third-party description of a JSON API under `terrabrasilis.dpi.inpe.br/queimad
 | Update | Gauges are sub-hourly when the station is up. Alerts are event-driven. |
 | Grain | Gauge or alert polygon/point. Not the 96 districts. |
 
-**Flag: not programmatically accessible** for anonymous ingestion. Historical rain behind the download form is an interactive, email-gated flow (the public form has long required an email and a captcha). Do not bypass the captcha. Next step is to ask CEMADEN for API credentials, or to drop flood alerts from the MVP until a public feed exists.
+**Fails closed.** There is no anonymous feed. The alerts page shows a freshness badge and does not invent a hydrological alert. Do not bypass the captcha on the download form.
 
 ## DataSUS SIH / OpenDataSUS
 

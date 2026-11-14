@@ -1,10 +1,12 @@
 package com.ecoguard.application;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.ecoguard.domain.risk.CovisaDengue.Edition;
 import com.ecoguard.domain.risk.OverallWeights;
 import com.ecoguard.domain.risk.ScoreInputs.DengueReading;
+import com.ecoguard.domain.risk.ScoreInputs.DistrictCovisa;
 import com.ecoguard.domain.risk.ScoreInputs.DistrictDay;
 import com.ecoguard.domain.risk.ScoreInputs.ForecastDay;
 import com.ecoguard.domain.risk.ScoreInputs.PersistedScore;
@@ -19,21 +21,36 @@ import org.junit.jupiter.api.Test;
 
 class ComputeRiskScoresTest {
   @Test
-  void usesTheDengueWeekThatContainsEachDate() {
-    List<DengueReading> weeks =
+  void scoresTheCovisaWindowValidOnThatDate() {
+    List<DistrictCovisa> bulletins =
         List.of(
-            new DengueReading(LocalDate.parse("2026-10-04"), 1, null),
-            new DengueReading(LocalDate.parse("2026-10-11"), 4, null));
-    List<DistrictDay> days =
-        List.of(day("2026-10-04"), day("2026-10-10"), day("2026-10-11"), day("2026-10-18"));
-    Memory memory = new Memory(weeks, days);
+            new DistrictCovisa(
+                "1",
+                new Edition(
+                    2025,
+                    39,
+                    LocalDate.parse("2025-09-28"),
+                    LocalDate.parse("2025-10-04"),
+                    1485,
+                    new BigDecimal("610.0"))),
+            new DistrictCovisa(
+                "1",
+                new Edition(
+                    2025,
+                    43,
+                    LocalDate.parse("2025-10-26"),
+                    LocalDate.parse("2025-11-01"),
+                    1525,
+                    new BigDecimal("629.1"))));
+    Memory memory = new Memory(bulletins, List.of(day("2025-10-28"), day("2025-11-10")));
     new ComputeRiskScores()
-        .execute(
-            memory, memory, Instant.parse("2026-11-03T00:00:00Z"), "default", 3550308, "dengue");
-    assertEquals(new BigDecimal("15.00"), memory.written.get(0).score().dengue());
-    assertEquals(new BigDecimal("15.00"), memory.written.get(1).score().dengue());
-    assertEquals(new BigDecimal("100.00"), memory.written.get(2).score().dengue());
-    assertNull(memory.written.get(3).score().dengue());
+        .execute(memory, memory, Instant.parse("2026-11-03T00:00:00Z"), "default");
+    assertEquals(0, new BigDecimal("16.50").compareTo(memory.written.get(0).score().dengue()));
+    assertEquals(0, new BigDecimal("16.50").compareTo(memory.written.get(1).score().dengue()));
+    assertTrue(memory.written.get(0).grainNote().contains("cases=40"));
+    assertTrue(memory.written.get(0).grainNote().contains("population_source=covisa_implied"));
+    assertTrue(memory.written.get(0).grainNote().contains("window_weeks=4"));
+    assertTrue(memory.written.get(0).grainNote().contains("editions_used=2"));
   }
 
   private static DistrictDay day(String date) {
@@ -42,12 +59,12 @@ class ComputeRiskScoresTest {
   }
 
   private static final class Memory implements Readings, Writer {
-    private final List<DengueReading> weeks;
+    private final List<DistrictCovisa> bulletins;
     private final List<DistrictDay> days;
     private final List<PersistedScore> written = new ArrayList<>();
 
-    private Memory(List<DengueReading> weeks, List<DistrictDay> days) {
-      this.weeks = weeks;
+    private Memory(List<DistrictCovisa> bulletins, List<DistrictDay> days) {
+      this.bulletins = bulletins;
       this.days = days;
     }
 
@@ -68,7 +85,12 @@ class ComputeRiskScoresTest {
 
     @Override
     public List<DengueReading> dengueReadings(int geocode, String disease) {
-      return weeks;
+      return List.of();
+    }
+
+    @Override
+    public List<DistrictCovisa> covisaEditions() {
+      return bulletins;
     }
 
     @Override

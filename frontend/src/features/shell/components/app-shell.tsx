@@ -53,7 +53,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </nav>
         <p className="sidebar-foot">
           São Paulo · 96 distritos. Grão diário e semanal. Weather data by Open-Meteo.com. Air quality data by
-          Open-Meteo.com (CC BY 4.0). INPE. IBGE. Fiocruz/InfoDengue.
+          Open-Meteo.com (CC BY 4.0). INPE. IBGE. COVISA: use with source citation; licence not verified.
         </p>
         <ThemeToggle />
       </aside>

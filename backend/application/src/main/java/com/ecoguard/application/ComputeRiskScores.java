@@ -1,7 +1,10 @@
 package com.ecoguard.application;
 
+import com.ecoguard.domain.risk.CovisaDengue;
+import com.ecoguard.domain.risk.CovisaDengue.Edition;
+import com.ecoguard.domain.risk.CovisaDengue.Window;
 import com.ecoguard.domain.risk.OverallWeights;
-import com.ecoguard.domain.risk.ScoreInputs.DengueReading;
+import com.ecoguard.domain.risk.ScoreInputs.DistrictCovisa;
 import com.ecoguard.domain.risk.ScoreInputs.DistrictDay;
 import com.ecoguard.domain.risk.ScoreInputs.PersistedScore;
 import com.ecoguard.domain.risk.ScoreInputs.Readings;
@@ -10,34 +13,31 @@ import com.ecoguard.domain.risk.ScoreRules;
 import com.ecoguard.domain.risk.ScoreRules.DayScore;
 import java.math.BigDecimal;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /** One score row per district and forecast date. The caller owns the transaction. */
 public final class ComputeRiskScores {
-  public int execute(
-      Readings readings,
-      Writer writer,
-      Instant computedAt,
-      String configKey,
-      int geocode,
-      String disease) {
+  public int execute(Readings readings, Writer writer, Instant computedAt, String configKey) {
     OverallWeights weights = readings.weights(configKey);
-    List<DengueReading> dengue = readings.dengueReadings(geocode, disease);
+    Map<String, List<Edition>> covisa = covisaByDistrict(readings.covisaEditions());
     List<PersistedScore> rows = new ArrayList<>();
     for (DistrictDay observation : readings.districtDays()) {
       BigDecimal heat = ScoreRules.heatForecast(observation.temperatureMaxC());
       BigDecimal rain = ScoreRules.rainForecast(observation.precipitationMm());
       BigDecimal air = ScoreRules.airQuality(observation.pm25DailyMean());
-      BigDecimal fire = ScoreRules.fire(observation.fireCount());
-      BigDecimal dengueScore = dengueScore(dengue, observation.date());
+      Window dengueWindow =
+          CovisaDengue.at(
+              covisa.getOrDefault(observation.districtCode(), List.of()), observation.date());
+      BigDecimal dengueScore =
+          dengueWindow.scored() ? ScoreRules.dengue(null, dengueWindow.incidence4w()) : null;
       BigDecimal density = ScoreRules.densityRisk(observation.population(), observation.areaKm2());
       BigDecimal sanitation =
           ScoreRules.sanitationRisk(
               observation.occupiedHouseholds(), observation.sewageNetworkHouseholds());
-      DayScore day =
-          ScoreRules.day(weights, heat, rain, air, fire, dengueScore, density, sanitation);
+      DayScore day = ScoreRules.day(weights, heat, rain, air, dengueScore, density, sanitation);
       rows.add(
           new PersistedScore(
               observation.districtCode(),
@@ -45,7 +45,7 @@ public final class ComputeRiskScores {
               configKey,
               day,
               computedAt,
-              grain(day)));
+              grain(day, dengueWindow)));
     }
     if (rows.isEmpty()) {
       return 0;
@@ -55,28 +55,29 @@ public final class ComputeRiskScores {
     return written;
   }
 
-  /** The reading whose week contains the date. Weeks are [start, start+7). */
-  static BigDecimal dengueScore(List<DengueReading> readings, LocalDate date) {
-    DengueReading match = null;
-    for (DengueReading reading : readings) {
-      LocalDate start = reading.weekStart();
-      if (start == null || start.isAfter(date) || !date.isBefore(start.plusDays(7))) {
-        continue;
-      }
-      if (match == null || start.isAfter(match.weekStart())) {
-        match = reading;
-      }
+  private static Map<String, List<Edition>> covisaByDistrict(List<DistrictCovisa> rows) {
+    Map<String, List<Edition>> grouped = new HashMap<>();
+    for (DistrictCovisa row : rows) {
+      grouped.computeIfAbsent(row.districtCode(), ignored -> new ArrayList<>()).add(row.edition());
     }
-    if (match == null) {
-      return null;
-    }
-    return ScoreRules.dengue(match.level(), match.incidencePer100k());
+    return grouped;
   }
 
-  private static String grain(DayScore day) {
-    return "environmental=Open-Meteo forecast and PM2.5 at the district point, INPE hotspots inside the polygon, coverage "
+  private static String grain(DayScore day, Window dengue) {
+    return "environmental=Open-Meteo forecast and PM2.5 at the district point; "
+        + "INPE hotspots are informational and stay out of the KPI, coverage "
         + day.environmental().coverage()
-        + "; health=municipal InfoDengue, coverage "
+        + "; health=COVISA incidence_4w window_weeks="
+        + dengue.windowWeeks()
+        + " editions_used="
+        + dengue.editionsUsed()
+        + " revision_flag="
+        + dengue.revisionFlag()
+        + " cases="
+        + dengue.cases()
+        + " population_source="
+        + CovisaDengue.POPULATION_SOURCE
+        + ", coverage "
         + day.health().coverage()
         + "; social=IBGE Censo 2022 district density and sewer network, coverage "
         + day.social().coverage()

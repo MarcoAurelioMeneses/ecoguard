@@ -56,7 +56,7 @@ An indicator is null when the source is missing, late beyond its documented cade
 | Heat | 0.25 | Open-Meteo forecast daily maximum at the district point-on-surface. Labeled as a forecast, not an INMET observation. | District point. | 100 at or above 35 °C. 0 at or below 25 °C. Linear between. |
 | Heavy rain | 0.30 | Open-Meteo forecast daily precipitation at the same point. Labeled as a forecast. | District point. | 100 at or above 80 mm. 0 at 0 mm. |
 | Air quality | 0.30 | Open-Meteo Air Quality daily mean PM2.5 (PM10 and ozone are stored, not scored). CETESB QUALAR has no anonymous API. | District point. | 0 at or below 5 µg/m³. 100 at or above 50. |
-| Fire | 0.15 | INPE daily Brazil CSV, rows for municipality 3550308, `ST_Within` the district polygon. | District polygon. | 100 if one or more hotspots fall in the district that day. 0 if the file was read and the join is empty. Null if the file was not read. |
+| Fire | none | INPE daily Brazil CSV, rows for municipality 3550308, `ST_Within` the district polygon. | District polygon. | Informational only. Hotspot counts stay out of the environmental KPI. |
 
 A missing indicator stays in the missing list. Present indicator weights are renormalized once their share of the pillar weight is at least 0.50. Below that, the pillar score is null and coverage is still stored. The UI shows the coverage fraction. Pillar weights 0.40 / 0.35 / 0.25 are not renormalized: if any pillar score is null, overall is null.
 
@@ -64,7 +64,7 @@ A missing indicator stays in the missing list. Present indicator weights are ren
 
 | Indicator | Draft weight | Source | Grain | Rule of thumb for 100 |
 | --- | --- | --- | --- | --- |
-| Dengue transmission | 0.60 | InfoDengue `nivel` and `p_inc100k` for geocode 3550308. | **Municipality.** The same value is attached to every district and labeled "municipal, not district". | Map alert level 1→15, 2→40, 3→70, 4→100. If level is null, scale incidence per 100,000 against a documented threshold instead of inventing a level. |
+| Dengue transmission | 0.60 | COVISA cumulative district bulletin, section 4 (Quadro 10). `incidence_4w = max(0, N_w - N_(w-4)) / pop * 100000 * (4 / n_weeks)`. `pop` is the population implied by that bulletin (`N / published incidence`), `population_source=covisa_implied`. The 100/100k cap applies to `incidence_4w`. Year-to-date incidence is context only. | District. | 100 at or above 100 per 100,000 on the four-week rate. |
 | Respiratory hospitalizations | 0.40 | DataSUS SIH has no confirmed anonymous API. The job records `respiratory_datasus` as missing and does not substitute a proxy. | Not loaded. | Null until an anonymous file pull is confirmed. |
 
 Health does not vary across districts with the sources in the MVP. Showing it on a choropleth without the municipal label would overstate precision. The district page should say so.
