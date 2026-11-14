@@ -8,8 +8,8 @@ import java.util.List;
 /**
  * Draft indicator rules for the sources this job can read. A missing indicator is listed. A pillar
  * uses only the indicators that are present, records that coverage, and renormalizes the weights
- * that are present once coverage reaches {@link #MINIMUM_COVERAGE}. Overall is published when
- * every pillar meets that minimum.
+ * that are present once coverage reaches {@link #MINIMUM_COVERAGE}. Overall is published when every
+ * pillar meets that minimum.
  */
 public final class ScoreRules {
   public static final BigDecimal MINIMUM_COVERAGE = new BigDecimal("0.50");
