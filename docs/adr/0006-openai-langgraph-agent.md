@@ -1,6 +1,6 @@
 # ADR 0006 — OpenAI gpt-4o-mini and a LangGraph analyst
 
-- Status: accepted
+- Status: Superseded by 0011
 - Date: 2026-11-02
 
 ## Context
