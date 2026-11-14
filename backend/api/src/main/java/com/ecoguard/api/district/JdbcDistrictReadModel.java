@@ -16,7 +16,7 @@ public class JdbcDistrictReadModel implements DistrictReadModel {
              ST_AsGeoJSON(d.geom) AS geojson, d.source, d.source_updated_at,
              s.score_date, s.environmental_score, s.health_score, s.social_score, s.overall_score,
              s.heat_score, s.rain_score, s.dengue_score,
-             s.environmental_coverage, s.health_coverage,
+             s.environmental_coverage, s.health_coverage, s.social_coverage,
              s.environmental_complete, s.health_complete, s.social_complete, s.grain_note
       FROM marts.districts d
       LEFT JOIN LATERAL (
@@ -131,6 +131,7 @@ public class JdbcDistrictReadModel implements DistrictReadModel {
         rs.getBigDecimal("dengue_score"),
         rs.getBigDecimal("environmental_coverage"),
         rs.getBigDecimal("health_coverage"),
+        rs.getBigDecimal("social_coverage"),
         ScoreRules.riskClass(environmental),
         ScoreRules.riskClass(health),
         ScoreRules.riskClass(social),

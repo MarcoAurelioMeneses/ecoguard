@@ -79,12 +79,46 @@ public final class Records {
     public static final String OFFICIAL_SOURCE = "geosampa:wfs:geoportal:distrito_municipal";
   }
 
+  public record DistrictEnvironmentDay(
+      String districtCode,
+      LocalDate date,
+      Double temperatureMaxC,
+      Double precipitationMm,
+      Double pm25Mean,
+      Double pm10Mean,
+      Double ozoneMean,
+      double latitude,
+      double longitude,
+      Instant extractedAt) {
+
+    public String externalKey() {
+      return "open-meteo-district:" + districtCode + ":" + date;
+    }
+  }
+
+  public record FireHotspot(double latitude, double longitude) {}
+
+  public record FireDay(LocalDate date, List<FireHotspot> hotspots, Instant extractedAt) {}
+
+  public record CensusDistrict(
+      String ibgeCode,
+      String name,
+      Double population,
+      Double areaKm2,
+      Double occupiedHouseholds,
+      Double sewageNetworkHouseholds,
+      Instant extractedAt,
+      String districtCode) {}
+
   public record Extraction(
       String source,
       List<RawRecord> records,
       List<InfoDengueAlert> infoDengue,
       List<OpenMeteoDaily> openMeteo,
-      List<District> districts) {}
+      List<District> districts,
+      List<DistrictEnvironmentDay> districtEnvironment,
+      List<FireDay> fires,
+      List<CensusDistrict> census) {}
 
   public record JobResult(
       String source, UUID runId, int extracted, int rawUpserted, int stagingUpserted) {}

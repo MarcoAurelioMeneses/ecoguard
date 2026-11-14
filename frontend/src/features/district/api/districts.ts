@@ -43,6 +43,7 @@ function toScore(score: ScoreWire | null | undefined): DistrictScore | null {
     dengue: score.dengue ?? null,
     environmentalCoverage: score.environmentalCoverage ?? null,
     healthCoverage: score.healthCoverage ?? null,
+    socialCoverage: score.socialCoverage ?? null,
     environmentalClass: riskClass(score.environmentalClass),
     healthClass: riskClass(score.healthClass),
     socialClass: riskClass(score.socialClass),

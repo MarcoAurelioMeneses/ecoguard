@@ -4,7 +4,7 @@ import { ErrorState, LoadingState } from "@/components/ui/states";
 import { useRiskConfig } from "../hooks/use-risk-config";
 
 const catalog = [
-  ["InfoDengue", "Dengue municipal semanal. Carregada pelo coletor."],
+  ["COVISA", "Dengue cumulativa por distrito, seção 4. use with source citation; licence not verified."],
   ["Open-Meteo", "Previsão de referência da cidade. Não é uma grade por distrito."],
   ["GeoSampa", "96 distritos municipais, WFS geoportal:distrito_municipal."],
   ["INMET, CETESB, CEMADEN, DataSUS, INPE, IBGE", "Catalogadas. Não carregadas nesta versão."],
@@ -23,6 +23,12 @@ export function Sources() {
           social ({config.data.status})
         </p>
       ) : null}
+      <h2>Atribuição</h2>
+      <p>
+        Weather data by Open-Meteo.com. Air quality data by Open-Meteo.com. Licença CC BY 4.0. Focos de
+        queimada: INPE Programa Queimadas, fora dos indicadores. Censo: IBGE. Dengue: COVISA. use with source
+        citation; licence not verified.
+      </p>
       <table className="data-table">
         <caption className="sr-only">Fontes de dados</caption>
         <thead>

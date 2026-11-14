@@ -1,5 +1,6 @@
 package com.ecoguard.ingestion.persistence;
 
+import com.ecoguard.domain.ingestion.Records;
 import com.ecoguard.domain.ingestion.Records.District;
 import com.ecoguard.domain.ingestion.Records.InfoDengueAlert;
 import com.ecoguard.domain.ingestion.Records.JobRun;
@@ -10,6 +11,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import org.postgresql.util.PGobject;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
@@ -218,6 +220,127 @@ public class JdbcIngestionStore implements IngestionStore {
               .update();
     }
     return written;
+  }
+
+  @Override
+  public int upsertDistrictEnvironment(List<Records.DistrictEnvironmentDay> rows) {
+    int written = 0;
+    for (var row : rows) {
+      written +=
+          jdbc.sql(
+                  """
+                  INSERT INTO staging.district_environment_daily (
+                    district_code, observation_date, temperature_max_c, precipitation_mm,
+                    pm2_5_mean, pm10_mean, ozone_mean, requested_latitude, requested_longitude,
+                    source, extracted_at)
+                  VALUES (
+                    :code, :date, :temp, :rain, :pm25, :pm10, :ozone, :lat, :lon,
+                    'open-meteo:forecast+air-quality', :extracted)
+                  ON CONFLICT (district_code, observation_date) DO UPDATE SET
+                    temperature_max_c = EXCLUDED.temperature_max_c,
+                    precipitation_mm = EXCLUDED.precipitation_mm,
+                    pm2_5_mean = EXCLUDED.pm2_5_mean,
+                    pm10_mean = EXCLUDED.pm10_mean,
+                    ozone_mean = EXCLUDED.ozone_mean,
+                    extracted_at = EXCLUDED.extracted_at
+                  """)
+              .param("code", row.districtCode())
+              .param("date", java.sql.Date.valueOf(row.date()))
+              .param("temp", row.temperatureMaxC())
+              .param("rain", row.precipitationMm())
+              .param("pm25", row.pm25Mean())
+              .param("pm10", row.pm10Mean())
+              .param("ozone", row.ozoneMean())
+              .param("lat", row.latitude())
+              .param("lon", row.longitude())
+              .param("extracted", timestamp(row.extractedAt()))
+              .update();
+    }
+    return written;
+  }
+
+  @Override
+  public int upsertFires(List<Records.FireDay> days) {
+    int written = 0;
+    for (var day : days) {
+      jdbc.sql(
+              "CREATE TEMP TABLE IF NOT EXISTS fire_points (lat double precision, lon double precision)")
+          .update();
+      jdbc.sql("TRUNCATE fire_points").update();
+      for (var point : day.hotspots()) {
+        jdbc.sql("INSERT INTO fire_points (lat, lon) VALUES (:lat, :lon)")
+            .param("lat", point.latitude())
+            .param("lon", point.longitude())
+            .update();
+      }
+      written +=
+          jdbc.sql(
+                  """
+                  INSERT INTO staging.district_fire_daily (
+                    district_code, observation_date, hotspot_count, source, extracted_at)
+                  SELECT d.district_code, :date, count(p.lat)::int,
+                         'inpe:csv:diario:Brasil', :extracted
+                  FROM marts.districts d
+                  LEFT JOIN fire_points p
+                    ON ST_Within(ST_SetSRID(ST_MakePoint(p.lon, p.lat), 4326), d.geom)
+                  GROUP BY d.district_code
+                  ON CONFLICT (district_code, observation_date) DO UPDATE SET
+                    hotspot_count = EXCLUDED.hotspot_count,
+                    extracted_at = EXCLUDED.extracted_at
+                  """)
+              .param("date", java.sql.Date.valueOf(day.date()))
+              .param("extracted", timestamp(day.extractedAt()))
+              .update();
+    }
+    return written;
+  }
+
+  @Override
+  public int upsertCensus(List<Records.CensusDistrict> rows) {
+    int written = 0;
+    for (var row : rows) {
+      written +=
+          jdbc.sql(
+                  """
+                  INSERT INTO staging.district_census (
+                    district_code, ibge_district_code, district_name, population, area_km2,
+                    occupied_households, sewage_network_households, reference_year, source, extracted_at)
+                  VALUES (
+                    :code, :ibge, :name, :population, :area, :occupied, :sewage, 2022,
+                    'ibge:censo2022:agregados-por-distrito', :extracted)
+                  ON CONFLICT (district_code) DO UPDATE SET
+                    population = EXCLUDED.population,
+                    area_km2 = EXCLUDED.area_km2,
+                    occupied_households = EXCLUDED.occupied_households,
+                    sewage_network_households = EXCLUDED.sewage_network_households,
+                    extracted_at = EXCLUDED.extracted_at
+                  """)
+              .param("code", row.districtCode())
+              .param("ibge", row.ibgeCode())
+              .param("name", row.name())
+              .param("population", row.population())
+              .param("area", row.areaKm2())
+              .param("occupied", row.occupiedHouseholds())
+              .param("sewage", row.sewageNetworkHouseholds())
+              .param("extracted", timestamp(row.extractedAt()))
+              .update();
+    }
+    return written;
+  }
+
+  @Override
+  public Map<String, String> districtCodesByNormalizedName() {
+    Map<String, String> codes = new java.util.HashMap<>();
+    jdbc.sql("SELECT district_code, name FROM marts.districts")
+        .query(
+            (rs, row) -> {
+              codes.put(
+                  com.ecoguard.domain.ingestion.CensusNames.normalize(rs.getString("name")),
+                  rs.getString("district_code"));
+              return null;
+            })
+        .list();
+    return codes;
   }
 
   @Override

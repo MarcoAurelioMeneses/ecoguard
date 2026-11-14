@@ -19,7 +19,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 public class OpenMeteoCollector implements SourcePort {
-  private static final String USER_AGENT = "EcoGuard-ingestion/0.1";
   private static final String DAILY =
       "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_hours,wind_speed_10m_max";
 
@@ -53,7 +52,15 @@ public class OpenMeteoCollector implements SourcePort {
     for (OpenMeteoDaily row : rows) {
       records.add(new RawRecord(sourceName(), row.externalKey(), payload(row), extractedAt));
     }
-    return new Extraction(sourceName(), List.copyOf(records), List.of(), rows, List.of());
+    return new Extraction(
+        sourceName(),
+        List.copyOf(records),
+        List.of(),
+        rows,
+        List.of(),
+        List.of(),
+        List.of(),
+        List.of());
   }
 
   private JsonNode fetch(IngestionProperties.OpenMeteo source) {
@@ -64,15 +71,11 @@ public class OpenMeteoCollector implements SourcePort {
             .queryParam("daily", DAILY)
             .queryParam("timezone", source.timezone())
             .queryParam("forecast_days", source.forecastDays());
+    java.util.Map<String, String> headers = new java.util.HashMap<>();
     if (source.apiKey() != null && !source.apiKey().isBlank()) {
-      builder.queryParam("apikey", source.apiKey());
+      headers.put("Authorization", "Bearer " + source.apiKey());
     }
-    return http.get()
-        .uri(builder.build(true).toUri())
-        .header("Accept", "application/json")
-        .header("User-Agent", USER_AGENT)
-        .retrieve()
-        .body(JsonNode.class);
+    return HttpFetch.get(http, builder.build(true).toUri(), JsonNode.class, headers);
   }
 
   private static Map<String, Object> payload(OpenMeteoDaily row) {

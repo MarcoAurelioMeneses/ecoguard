@@ -56,7 +56,15 @@ public class GeoSampaDistrictCollector implements SourcePort {
       throw new IllegalStateException(
           "GeoSampa distrito_municipal returned " + districts.size() + " features, expected 96");
     }
-    return new Extraction(sourceName(), List.of(), List.of(), List.of(), List.copyOf(districts));
+    return new Extraction(
+        sourceName(),
+        List.of(),
+        List.of(),
+        List.of(),
+        List.copyOf(districts),
+        List.of(),
+        List.of(),
+        List.of());
   }
 
   private JsonNode fetch(int startIndex) {
@@ -72,13 +80,7 @@ public class GeoSampaDistrictCollector implements SourcePort {
             .queryParam("startIndex", startIndex)
             .build(true)
             .toUriString();
-    JsonNode body =
-        http.get()
-            .uri(uri)
-            .header("Accept", "application/json")
-            .header("User-Agent", "EcoGuard-ingestion/0.1")
-            .retrieve()
-            .body(JsonNode.class);
+    JsonNode body = HttpFetch.get(http, uri, JsonNode.class);
     if (body == null || !body.path("features").isArray()) {
       throw new IllegalStateException("GeoSampa WFS did not return a FeatureCollection");
     }

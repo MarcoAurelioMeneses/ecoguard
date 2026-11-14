@@ -7,6 +7,7 @@ springdoc = "2.8.14"
 flyway = "11.11.0"
 testcontainers = "1.21.4"
 wiremock = "3.13.1"
+pdfbox = "3.0.5"
 jts = "1.20.0"
 spotless = "8.9.0"
 spotbugs = "6.5.13"
@@ -27,6 +28,7 @@ spring-ai-openai = { module = "org.springframework.ai:spring-ai-starter-model-op
 testcontainers-junit = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
 testcontainers-postgresql = { module = "org.testcontainers:postgresql", version.ref = "testcontainers" }
 wiremock = { module = "org.wiremock:wiremock-standalone", version.ref = "wiremock" }
+pdfbox = { module = "org.apache.pdfbox:pdfbox", version.ref = "pdfbox" }
 errorprone-core = { module = "com.google.errorprone:error_prone_core", version.ref = "errorprone" }
 
 [plugins]

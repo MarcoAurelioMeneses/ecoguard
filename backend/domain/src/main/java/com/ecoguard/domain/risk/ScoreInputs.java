@@ -1,5 +1,6 @@
 package com.ecoguard.domain.risk;
 
+import com.ecoguard.domain.risk.CovisaDengue.Edition;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -11,7 +12,21 @@ public final class ScoreInputs {
   public record ForecastDay(
       LocalDate date, BigDecimal temperatureMaxC, BigDecimal precipitationMm) {}
 
+  public record DistrictDay(
+      String districtCode,
+      LocalDate date,
+      BigDecimal temperatureMaxC,
+      BigDecimal precipitationMm,
+      BigDecimal pm25DailyMean,
+      Integer fireCount,
+      BigDecimal population,
+      BigDecimal areaKm2,
+      BigDecimal occupiedHouseholds,
+      BigDecimal sewageNetworkHouseholds) {}
+
   public record DengueReading(LocalDate weekStart, Integer level, BigDecimal incidencePer100k) {}
+
+  public record DistrictCovisa(String districtCode, Edition edition) {}
 
   public record PersistedScore(
       String districtCode,
@@ -26,7 +41,12 @@ public final class ScoreInputs {
 
     List<ForecastDay> forecasts(String locationId);
 
-    DengueReading latestDengue(int geocode, String disease);
+    List<DistrictDay> districtDays();
+
+    /** Every stored epidemiological week, oldest first. A week covers seven days from its start. */
+    List<DengueReading> dengueReadings(int geocode, String disease);
+
+    List<DistrictCovisa> covisaEditions();
 
     OverallWeights weights(String configKey);
   }

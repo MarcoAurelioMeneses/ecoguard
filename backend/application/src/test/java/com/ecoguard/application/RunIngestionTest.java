@@ -53,7 +53,15 @@ class RunIngestionTest {
 
           @Override
           public Extraction extract(Instant extractedAt) {
-            return new Extraction("infodengue", List.of(raw), List.of(row), List.of(), List.of());
+            return new Extraction(
+                "infodengue",
+                List.of(raw),
+                List.of(row),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of());
           }
         };
     MemoryStore store = new MemoryStore();
@@ -88,6 +96,28 @@ class RunIngestionTest {
     @Override
     public int upsertDistricts(List<District> districts) {
       return districts.size();
+    }
+
+    @Override
+    public int upsertDistrictEnvironment(
+        java.util.List<com.ecoguard.domain.ingestion.Records.DistrictEnvironmentDay> rows) {
+      return rows.size();
+    }
+
+    @Override
+    public int upsertFires(java.util.List<com.ecoguard.domain.ingestion.Records.FireDay> days) {
+      return days.size();
+    }
+
+    @Override
+    public int upsertCensus(
+        java.util.List<com.ecoguard.domain.ingestion.Records.CensusDistrict> rows) {
+      return rows.size();
+    }
+
+    @Override
+    public java.util.Map<String, String> districtCodesByNormalizedName() {
+      return java.util.Map.of();
     }
 
     @Override

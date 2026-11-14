@@ -37,3 +37,9 @@ ecoguard:
     timezone: America/Sao_Paulo
     forecast-days: 7
     location-id: sp-city-reference
+  backfill:
+    days: ${ECOGUARD_BACKFILL_DAYS:30}
+    air-quality-base-url: https://air-quality-api.open-meteo.com/v1/air-quality
+    inpe-daily-csv: https://dataserver-coids.inpe.br/queimadas/queimadas/focos/csv/diario/Brasil/
+    ibge-basico-url: https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios/Agregados_por_Distrito_csv/Agregados_por_distritos_basico_BR_20260520.zip
+    ibge-domicile-url: https://ftp.ibge.gov.br/Censos/Censo_Demografico_2022/Agregados_por_Setores_Censitarios/Agregados_por_Distrito_csv/Agregados_por_distritos_caracteristicas_domicilio2_BR_20250417.zip

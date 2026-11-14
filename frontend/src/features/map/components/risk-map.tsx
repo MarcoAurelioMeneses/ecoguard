@@ -64,8 +64,9 @@ export function RiskMap({ districts }: { districts: District[] }) {
         <ViewToggle table={table} graphicLabel="Mapa" onChange={setTable} />
       </div>
       <p className="meta">
-        As notas ainda não foram calculadas. Cada distrito aparece como sem dado, com contorno tracejado para
-        o estado não depender só da cor.
+        {districts.some((district) => district.score?.overall != null)
+          ? "A cor é a classe geral. Cada pilar é publicado a partir de 50% de cobertura, com os pesos dos indicadores presentes renormalizados. A cobertura que falta fica na nota do distrito."
+          : "As notas ainda não foram calculadas. Cada distrito aparece como sem dado, com contorno tracejado para o estado não depender só da cor."}
       </p>
       {table ? (
         <DistrictTable districts={districts} />

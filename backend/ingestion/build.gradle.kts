@@ -20,6 +20,7 @@ dependencies {
     implementation(libs.flyway.database.postgresql)
     implementation(libs.postgresql)
     implementation(libs.jts.core)
+    implementation(libs.pdfbox)
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation(libs.wiremock)
