@@ -97,7 +97,7 @@ There is no observability screen. It was not designed.
 
 A screen component renders. Its hook calls that feature's `api` module, which maps DTOs from `src/lib/api`. Shared analytics validates events in memory and sends them to PostHog only when both public env vars are set.
 
-Light-theme accent is `#076E94`. The wordmark uses it at 24px, weight 600. Control borders use `--border-strong`.
+Light-theme accent is `#076E94`. The wordmark is Eco in `--accent` and Guard in `--text`, at 24px, weight 600. Control borders use `--border-strong`.
 
 ## Data flow
 

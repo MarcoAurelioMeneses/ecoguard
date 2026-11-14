@@ -125,7 +125,5 @@ A tela 7 (status/observabilidade, opcional no `mvp-scope.md`) não foi desenhada
 - **Acessibilidade**: foco visível (anel 2px `--ring`, offset 2px), risco nunca só por cor (padrão + forma + texto), alvo ≥ 44px, `aria-label` em gráficos/mapa/botões só com ícone, alternativa em tabela para o mapa, `prefers-reduced-motion` e `prefers-color-scheme` para o tema inicial. Em Next.js: `next/font` para Inter/JetBrains Mono, componentes de mapa/gráfico carregados sob demanda (`next/dynamic`).
 
 ## 7. Logo
-- `logo/logo-icone.svg` / `logo-icone-claro.svg`: escudo (proteção) + 3 barras (dados) + folha (ambiente), traço 2,6 em `--accent`. É o ícone usado dentro da UI (vetor).
-- `logo/logo-icone-ia.png`: versão gerada por IA, ícone de app em tile escuro (1:1), para favicon/app/redes.
-- `logo/logo-wordmark-ia.png`: lockup "EcoGuard" + "Inteligência urbana para São Paulo" (16:9), gerado por IA. Wordmark na UI: **Eco** (600) + **Guard** (accent), Inter 24px, tracking −0,02em.
-- Área de respiro mínima = altura da barra central do ícone. Tamanho mínimo do ícone: 24px.
+
+O pacote final está em `logo/v2/` (a folha `logo-sheet.png` mostra as variantes). Escudo, pin de mapa e folha. O wordmark na UI é texto, não o SVG: **Eco** em `--accent` e **Guard** em `--text`, Inter 24px, peso 600, tracking −0,02em. Abaixo de 24px use `favicon.svg` (traço mais grosso, sem o pin). O ícone na interface fica em 32px, na variante transparente do tema. Área de respiro mínima = um quarto da altura do escudo.

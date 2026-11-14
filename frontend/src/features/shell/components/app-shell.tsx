@@ -1,7 +1,7 @@
-import Image from "next/image";
 import Link from "next/link";
 import { IconAbout, IconAlert, IconChat, IconMap, IconOverview, IconSources } from "@/components/ui/icons";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { BrandMark } from "./brand-mark";
 import { NavCurrent } from "./nav-current";
 import { Topbar } from "./topbar";
 
@@ -33,9 +33,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </a>
       <aside className="sidebar">
         <div className="brand">
-          <Image src="/logo.svg" alt="" width={32} height={32} unoptimized />
+          <BrandMark />
           <p className="wordmark">
-            Eco<span className="wordmark-accent">Guard</span>
+            <span className="wordmark-eco">Eco</span>
+            <span className="wordmark-guard">Guard</span>
           </p>
         </div>
         <nav className="nav" aria-label="Principal">

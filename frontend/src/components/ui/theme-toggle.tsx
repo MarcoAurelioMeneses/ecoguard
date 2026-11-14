@@ -19,8 +19,12 @@ function snapshot(): Theme {
   return document.documentElement.classList.contains("light") ? "light" : "dark";
 }
 
+export function useTheme() {
+  return useSyncExternalStore(subscribe, snapshot, () => "dark" as const);
+}
+
 export function ThemeToggle() {
-  const theme = useSyncExternalStore(subscribe, snapshot, () => "dark" as const);
+  const theme = useTheme();
 
   function toggle() {
     const next: Theme = snapshot() === "light" ? "dark" : "light";
