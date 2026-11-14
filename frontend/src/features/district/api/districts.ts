@@ -1,6 +1,17 @@
-import { http } from "@/lib/api/client";
-import type { DistrictFeatureDto, DistrictScoreDto } from "@/lib/api/dto";
+import { http, type DistrictFeatureWire } from "@/lib/api/client";
 import type { District, DistrictScore, RiskClass } from "../model/district";
+
+type ScoreWire = NonNullable<DistrictFeatureWire["properties"]["score"]>;
+
+const geometryTypes = [
+  "Point",
+  "MultiPoint",
+  "LineString",
+  "MultiLineString",
+  "Polygon",
+  "MultiPolygon",
+  "GeometryCollection",
+] as const;
 
 function riskClass(value: string | undefined): RiskClass {
   if (value === "baixo" || value === "moderado" || value === "alto" || value === "critico") {
@@ -9,7 +20,15 @@ function riskClass(value: string | undefined): RiskClass {
   return "nodata";
 }
 
-function toScore(score: DistrictScoreDto | null | undefined): DistrictScore | null {
+function toGeometry(value: DistrictFeatureWire["geometry"]): GeoJSON.Geometry {
+  const type = value?.type;
+  if (typeof type === "string" && geometryTypes.some((item) => item === type) && value) {
+    return { type, ...value } as GeoJSON.Geometry;
+  }
+  return { type: "Polygon", coordinates: [] };
+}
+
+function toScore(score: ScoreWire | null | undefined): DistrictScore | null {
   if (!score?.scoreDate) {
     return null;
   }
@@ -35,7 +54,7 @@ function toScore(score: DistrictScoreDto | null | undefined): DistrictScore | nu
   };
 }
 
-function toDistrict(feature: DistrictFeatureDto): District {
+function toDistrict(feature: DistrictFeatureWire): District {
   return {
     code: feature.properties.code,
     name: feature.properties.name,
@@ -44,7 +63,7 @@ function toDistrict(feature: DistrictFeatureDto): District {
     areaKm2: feature.properties.areaKm2 ?? null,
     source: feature.properties.source,
     sourceUpdatedAt: feature.properties.sourceUpdatedAt ?? null,
-    geometry: feature.geometry,
+    geometry: toGeometry(feature.geometry),
     score: toScore(feature.properties.score),
   };
 }

@@ -27,7 +27,15 @@
       "get": {
         "operationId": "getDistrict",
         "parameters": [{ "name": "code", "in": "path", "required": true, "schema": { "type": "string" } }],
-        "responses": { "200": { "description": "One district" }, "404": { "description": "Missing" } }
+        "responses": {
+          "200": {
+            "description": "One district",
+            "content": {
+              "application/json": { "schema": { "$ref": "#/components/schemas/Feature" } }
+            }
+          },
+          "404": { "description": "Missing" }
+        }
       }
     },
     "/risk-config": {

@@ -1,3 +1,5 @@
+# Next.js rewrites this file during dev and build.
+tsconfig.json
 .next
 src/styles/tokens.css
 node_modules

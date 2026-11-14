@@ -4,31 +4,31 @@ import { ErrorState, LoadingState } from "@/components/ui/states";
 import { useRiskConfig } from "../hooks/use-risk-config";
 
 const catalog = [
-  ["InfoDengue", "Weekly municipal dengue. Loaded by the Java collector."],
-  ["Open-Meteo", "City reference forecast. Not a district grid."],
-  ["GeoSampa", "96 municipal districts, WFS geoportal:distrito_municipal."],
-  ["INMET, CETESB, CEMADEN, DataSUS, INPE, IBGE", "Catalogued. Not loaded in this build."],
+  ["InfoDengue", "Dengue municipal semanal. Carregada pelo coletor."],
+  ["Open-Meteo", "Previsão de referência da cidade. Não é uma grade por distrito."],
+  ["GeoSampa", "96 distritos municipais, WFS geoportal:distrito_municipal."],
+  ["INMET, CETESB, CEMADEN, DataSUS, INPE, IBGE", "Catalogadas. Não carregadas nesta versão."],
 ];
 
 export function Sources() {
   const config = useRiskConfig();
   return (
     <section className="stack">
-      <h2>Weights and catalog</h2>
-      {config.status === "loading" ? <LoadingState label="Loading score weights…" /> : null}
+      <h2>Pesos e catálogo</h2>
+      {config.status === "loading" ? <LoadingState label="Carregando os pesos da nota…" /> : null}
       {config.status === "error" ? <ErrorState message={config.message} /> : null}
       {config.status === "ready" ? (
         <p className="formula">
-          Overall = {config.data.environmental} environmental + {config.data.health} health +{" "}
-          {config.data.social} social ({config.data.status})
+          Geral = {config.data.environmental} ambiental + {config.data.health} saúde + {config.data.social}{" "}
+          social ({config.data.status})
         </p>
       ) : null}
       <table className="data-table">
-        <caption className="sr-only">Data sources</caption>
+        <caption className="sr-only">Fontes de dados</caption>
         <thead>
           <tr>
-            <th scope="col">Source</th>
-            <th scope="col">Status</th>
+            <th scope="col">Fonte</th>
+            <th scope="col">Situação</th>
           </tr>
         </thead>
         <tbody>

@@ -28,7 +28,7 @@ export function useAnalystChat() {
       setStatus("idle");
     } catch (cause) {
       setStatus("error");
-      setError(messageFrom(cause, "The analyst could not answer"));
+      setError(messageFrom(cause, "O analista não conseguiu responder"));
     }
   }
 

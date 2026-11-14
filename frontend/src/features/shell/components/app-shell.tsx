@@ -7,21 +7,21 @@ import { Topbar } from "./topbar";
 
 const groups = [
   {
-    label: "Product",
-    links: [{ href: "/", label: "What is EcoGuard", icon: <IconAbout /> }],
+    label: "Produto",
+    links: [{ href: "/", label: "O que é o EcoGuard", icon: <IconAbout /> }],
   },
   {
-    label: "Analysis",
+    label: "Análise",
     links: [
-      { href: "/overview", label: "Overview", icon: <IconOverview /> },
-      { href: "/map", label: "Risk map", icon: <IconMap /> },
-      { href: "/analyst", label: "AI City Analyst", icon: <IconChat /> },
-      { href: "/alerts", label: "Alerts", icon: <IconAlert /> },
+      { href: "/overview", label: "Visão geral", icon: <IconOverview /> },
+      { href: "/map", label: "Mapa de risco", icon: <IconMap /> },
+      { href: "/analyst", label: "Analista de IA", icon: <IconChat /> },
+      { href: "/alerts", label: "Alertas", icon: <IconAlert /> },
     ],
   },
   {
-    label: "Transparency",
-    links: [{ href: "/sources", label: "Sources and methodology", icon: <IconSources /> }],
+    label: "Transparência",
+    links: [{ href: "/sources", label: "Fontes e metodologia", icon: <IconSources /> }],
   },
 ];
 
@@ -29,7 +29,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="app">
       <a className="skip" href="#content">
-        Skip to content
+        Pular para o conteúdo
       </a>
       <aside className="sidebar">
         <div className="brand">
@@ -38,7 +38,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             Eco<span className="wordmark-accent">Guard</span>
           </p>
         </div>
-        <nav className="nav" aria-label="Primary">
+        <nav className="nav" aria-label="Principal">
           {groups.map((group) => (
             <div key={group.label}>
               <p className="nav-group">{group.label}</p>
@@ -51,7 +51,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           ))}
         </nav>
-        <p className="sidebar-foot">São Paulo · 96 districts. Daily and weekly grain.</p>
+        <p className="sidebar-foot">São Paulo · 96 distritos. Grão diário e semanal.</p>
         <ThemeToggle />
       </aside>
       <div className="workspace">

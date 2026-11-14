@@ -4,20 +4,19 @@ export function AboutPage() {
   return (
     <section className="stack">
       <p>
-        City risk intelligence for São Paulo. It combines public environmental, health, and social data at
-        district grain, where the source actually has that grain, with an AI City Analyst that has to cite its
-        sources.
+        Inteligência de risco urbano para São Paulo. Reúne dados públicos ambientais, de saúde e sociais no
+        grão do distrito, quando a fonte tem esse grão, com um analista de IA que precisa citar as fontes.
       </p>
       <p className="meta">
-        The problem is scattered bulletins. The audience is a resident or an analyst who needs one map and one
-        cited answer. Figures in the design mockups are examples and are not loaded.
+        O problema são boletins espalhados. O público é um morador ou um analista que precisa de um mapa e de
+        uma resposta citada. Os números dos desenhos de interface são exemplos e não são carregados.
       </p>
       <p className="segment">
         <Link className="control is-on" href="/map">
-          Risk map
+          Mapa de risco
         </Link>
         <Link className="control" href="/analyst">
-          AI City Analyst
+          Analista de IA
         </Link>
       </p>
     </section>

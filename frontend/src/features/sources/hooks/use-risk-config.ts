@@ -14,7 +14,7 @@ export function useRiskConfig() {
       .catch((error: unknown) => {
         setState({
           status: "error",
-          message: messageFrom(error, "Could not load the score configuration"),
+          message: messageFrom(error, "Não foi possível carregar a configuração da nota"),
         });
       });
   }, []);

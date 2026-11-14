@@ -10,10 +10,10 @@ import { mountDistrictMap } from "./mount-map";
 import "maplibre-gl/dist/maplibre-gl.css";
 
 const layers = [
-  { id: "environmental", label: "Environmental" },
-  { id: "health", label: "Health" },
+  { id: "environmental", label: "Ambiental" },
+  { id: "health", label: "Saúde" },
   { id: "social", label: "Social" },
-  { id: "overall", label: "Overall" },
+  { id: "overall", label: "Geral" },
 ] as const;
 
 export function RiskMap({ districts }: { districts: District[] }) {
@@ -48,7 +48,7 @@ export function RiskMap({ districts }: { districts: District[] }) {
   return (
     <section className="stack">
       <div className="toolbar">
-        <div className="segment" role="group" aria-label="Risk layer">
+        <div className="segment" role="group" aria-label="Camada de risco">
           {layers.map((item) => (
             <button
               key={item.id}
@@ -61,11 +61,11 @@ export function RiskMap({ districts }: { districts: District[] }) {
             </button>
           ))}
         </div>
-        <ViewToggle table={table} graphicLabel="Map" onChange={setTable} />
+        <ViewToggle table={table} graphicLabel="Mapa" onChange={setTable} />
       </div>
       <p className="meta">
-        Scores are not computed yet. Every district is shown as no data, with a dashed outline so the state is
-        not color alone.
+        As notas ainda não foram calculadas. Cada distrito aparece como sem dado, com contorno tracejado para
+        o estado não depender só da cor.
       </p>
       {table ? (
         <DistrictTable districts={districts} />
@@ -75,10 +75,10 @@ export function RiskMap({ districts }: { districts: District[] }) {
             ref={host}
             className="map-canvas"
             role="application"
-            aria-label="São Paulo districts, no score data"
+            aria-label="Distritos de São Paulo, sem nota"
           />
           <p className="map-legend">
-            <Link href="/sources">How scores will be calculated</Link>
+            <Link href="/sources">Como as notas serão calculadas</Link>
           </p>
         </div>
       )}

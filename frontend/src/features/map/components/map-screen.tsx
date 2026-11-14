@@ -8,12 +8,12 @@ export function MapScreen() {
   const { state, reload } = useDistricts();
   return (
     <>
-      {state.status === "loading" ? <LoadingState label="Loading the district layer…" /> : null}
+      {state.status === "loading" ? <LoadingState label="Carregando a camada de distritos…" /> : null}
       {state.status === "error" ? <ErrorState message={state.message} onRetry={reload} /> : null}
       {state.status === "empty" ? (
         <EmptyState
-          title="No districts loaded"
-          detail="The GeoSampa collector has not written the 96 districts yet."
+          title="Nenhum distrito carregado"
+          detail="O coletor do GeoSampa ainda não gravou os 96 distritos."
         />
       ) : null}
       {state.status === "ready" ? <RiskMap districts={state.data} /> : null}

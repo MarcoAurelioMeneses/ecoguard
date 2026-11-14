@@ -68,6 +68,22 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/scores/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["scoreSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/analyst/questions": {
         parameters: {
             query?: never;
@@ -108,6 +124,41 @@ export interface components {
             source: string;
             /** Format: date-time */
             sourceUpdatedAt?: string | null;
+            score?: components["schemas"]["ScoreSnapshot"];
+        };
+        ScoreSnapshot: {
+            /** Format: date */
+            scoreDate?: string;
+            environmental?: number | null;
+            health?: number | null;
+            social?: number | null;
+            overall?: number | null;
+            heat?: number | null;
+            rain?: number | null;
+            dengue?: number | null;
+            environmentalCoverage?: number | null;
+            healthCoverage?: number | null;
+            environmentalClass?: string;
+            healthClass?: string;
+            socialClass?: string;
+            overallClass?: string;
+            environmentalComplete?: boolean;
+            healthComplete?: boolean;
+            socialComplete?: boolean;
+            grainNote?: string | null;
+        };
+        SeriesPoint: {
+            /** Format: date */
+            scoreDate: string;
+            heat?: number | null;
+            rain?: number | null;
+            dengue?: number | null;
+            environmental?: number | null;
+            health?: number | null;
+        };
+        CityScores: {
+            latest?: components["schemas"]["ScoreSnapshot"];
+            series: components["schemas"]["SeriesPoint"][];
         };
         RiskConfig: {
             environmental: number;
@@ -178,7 +229,9 @@ export interface operations {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["Feature"];
+                };
             };
             /** @description Missing */
             404: {
@@ -205,6 +258,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RiskConfig"];
+                };
+            };
+        };
+    };
+    scoreSummary: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Latest broadcast scores and the daily series */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CityScores"];
                 };
             };
         };

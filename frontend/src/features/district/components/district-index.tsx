@@ -8,12 +8,12 @@ export function DistrictIndex() {
   const { state, reload } = useDistricts();
   return (
     <>
-      {state.status === "loading" ? <LoadingState label="Loading districts…" /> : null}
+      {state.status === "loading" ? <LoadingState label="Carregando distritos…" /> : null}
       {state.status === "error" ? <ErrorState message={state.message} onRetry={reload} /> : null}
       {state.status === "empty" ? (
         <EmptyState
-          title="No districts loaded"
-          detail="Run the GeoSampa collector before opening a district."
+          title="Nenhum distrito carregado"
+          detail="Rode o coletor do GeoSampa antes de abrir um distrito."
         />
       ) : null}
       {state.status === "ready" ? <DistrictTable districts={state.data} /> : null}

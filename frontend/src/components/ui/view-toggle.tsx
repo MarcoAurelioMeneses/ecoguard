@@ -3,14 +3,14 @@
 export function ViewToggle({
   table,
   onChange,
-  graphicLabel = "Chart",
+  graphicLabel = "Gráfico",
 }: {
   table: boolean;
   onChange: (table: boolean) => void;
   graphicLabel?: string;
 }) {
   return (
-    <div className="segment" role="group" aria-label="Presentation">
+    <div className="segment" role="group" aria-label="Apresentação">
       <button
         type="button"
         className={table ? "control" : "control is-on"}
@@ -25,7 +25,7 @@ export function ViewToggle({
         aria-pressed={table}
         onClick={() => onChange(true)}
       >
-        View as table
+        Ver como tabela
       </button>
     </div>
   );

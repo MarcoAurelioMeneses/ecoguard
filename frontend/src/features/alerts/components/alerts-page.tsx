@@ -4,8 +4,8 @@ export function AlertsPage() {
   return (
     <>
       <EmptyState
-        title="No active alerts"
-        detail="Weather, flood, and fire feeds are not loaded yet. This list stays empty instead of showing example alerts."
+        title="Nenhum alerta ativo"
+        detail="Os dados de tempo, enchente e fogo ainda não foram carregados. Esta lista fica vazia em vez de mostrar alertas de exemplo."
       />
     </>
   );
