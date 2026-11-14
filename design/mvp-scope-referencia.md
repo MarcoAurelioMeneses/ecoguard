@@ -20,7 +20,7 @@ security, APIs, agents, LLMs, RAG, observability and data processing.
 - Storage: Supabase Postgres + PostGIS (geometries) + pgvector (RAG docs).
 - Processing: Python (pandas/polars) jobs compute daily indicators and risk scores; dbt-style SQL layers (raw, staging, marts).
 - API: FastAPI (typed, OpenAPI), read-only public endpoints, rate limited.
-- Agent: LangGraph/LangChain agent in the API with tools (text-to-SQL on marts with allowlist, get_risk(district, date), search_docs); OpenAI gpt-4o-mini.
+- Agent: LangGraph/LangChain agent in the API with tools (text-to-SQL on marts with allowlist, get_risk(district, date), search_docs); OpenAI gpt-6-luna (`OPENAI_MODEL` overrides it).
 - Frontend: Next.js + MapLibre GL (choropleth) + charts (Recharts/ECharts).
 - Deploy: Railway (api, workers, web); Supabase managed DB.
 - Security: read-only DB role for agent, SQL allowlist/guardrails, secrets in env, CSP, rate limits, prompt-injection mitigations.

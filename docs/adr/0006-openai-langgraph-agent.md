@@ -1,6 +1,6 @@
 # ADR 0006 — OpenAI gpt-4o-mini and a LangGraph analyst
 
-- Status: accepted
+- Status: accepted; the model name is superseded by [ADR 0011](0011-gpt-6-luna.md)
 - Date: 2026-11-02
 
 ## Context
