@@ -1,0 +1,14 @@
+.git
+.github
+.cursor
+.gradle
+**/.gradle
+**/build
+**/node_modules
+**/.next
+**/*.tsbuildinfo
+design
+**/*.log
+.env
+.env.*
+!.env.example
