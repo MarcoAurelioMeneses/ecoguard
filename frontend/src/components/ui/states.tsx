@@ -12,7 +12,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
       <p>{message}</p>
       {onRetry ? (
         <button type="button" className="control" onClick={onRetry}>
-          Try again
+          Tentar de novo
         </button>
       ) : null}
     </div>

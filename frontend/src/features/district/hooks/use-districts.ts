@@ -15,7 +15,7 @@ export function useDistricts() {
         setState(districts.length === 0 ? { status: "empty" } : { status: "ready", data: districts });
       })
       .catch((error: unknown) => {
-        setState({ status: "error", message: messageFrom(error, "Could not load districts") });
+        setState({ status: "error", message: messageFrom(error, "Não foi possível carregar os distritos") });
       });
   }, []);
 
@@ -32,7 +32,7 @@ export function useDistricts() {
         if (!live) {
           return;
         }
-        setState({ status: "error", message: messageFrom(error, "Could not load districts") });
+        setState({ status: "error", message: messageFrom(error, "Não foi possível carregar os distritos") });
       });
     return () => {
       live = false;

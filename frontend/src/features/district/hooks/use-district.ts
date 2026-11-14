@@ -20,7 +20,7 @@ export function useDistrict(code: string) {
     getDistrict(code)
       .then((data) => setState({ status: "ready", data }))
       .catch((error: unknown) => {
-        const message = messageFrom(error, "Could not load the district");
+        const message = messageFrom(error, "Não foi possível carregar o distrito");
         setState(message.includes("404") ? { status: "missing" } : { status: "error", message });
       });
   }, [code]);

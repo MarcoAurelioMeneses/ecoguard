@@ -17,8 +17,8 @@ describe("AnalystChat", () => {
 
   it("shows the AI tag, the error disclaimer, and passes axe", async () => {
     const view = render(<AnalystChat />);
-    expect(screen.getByText("AI")).toBeInTheDocument();
-    expect(screen.getByText(/may contain errors/i)).toBeInTheDocument();
+    expect(screen.getByText("IA")).toBeInTheDocument();
+    expect(screen.getByText(/podem conter erros/i)).toBeInTheDocument();
     expect(await axe(view.container)).toHaveNoViolations();
   });
 
@@ -26,13 +26,13 @@ describe("AnalystChat", () => {
     vi.mocked(askAnalyst).mockResolvedValue({ answer: "Cited answer." });
     const user = userEvent.setup();
     const view = render(<AnalystChat />);
-    await user.type(view.getByLabelText("Question"), "Heat in Sé");
-    await user.click(view.getByRole("button", { name: "Send" }));
+    await user.type(view.getByLabelText("Pergunta"), "Calor na Sé");
+    await user.click(view.getByRole("button", { name: "Enviar" }));
     expect(await view.findByText("Cited answer.")).toBeInTheDocument();
-    expect(askAnalyst).toHaveBeenCalledWith("Heat in Sé");
-    await user.click(screen.getByRole("button", { name: "Regenerate" }));
+    expect(askAnalyst).toHaveBeenCalledWith("Calor na Sé");
+    await user.click(screen.getByRole("button", { name: "Regenerar" }));
     expect(askAnalyst).toHaveBeenCalledTimes(2);
-    expect(screen.getByRole("button", { name: "Useful" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Not useful" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Útil" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Não útil" })).toBeInTheDocument();
   });
 });

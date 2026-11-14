@@ -1,11 +1,11 @@
 export type RiskClass = "baixo" | "moderado" | "alto" | "critico" | "nodata";
 
 const label: Record<RiskClass, string> = {
-  baixo: "Low",
-  moderado: "Moderate",
-  alto: "High",
-  critico: "Critical",
-  nodata: "No data",
+  baixo: "Baixo",
+  moderado: "Moderado",
+  alto: "Alto",
+  critico: "Crítico",
+  nodata: "Sem dado",
 };
 
 export function RiskMark({ level }: { level: RiskClass }) {

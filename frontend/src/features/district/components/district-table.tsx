@@ -4,17 +4,17 @@ import type { District } from "../model/district";
 
 export function DistrictTable({ districts }: { districts: District[] }) {
   if (districts.length === 0) {
-    return <p className="state">No districts in this table.</p>;
+    return <p className="state">Nenhum distrito nesta tabela.</p>;
   }
   return (
     <table className="data-table">
-      <caption className="sr-only">Districts and score availability</caption>
+      <caption className="sr-only">Distritos e disponibilidade da nota</caption>
       <thead>
         <tr>
-          <th scope="col">District</th>
-          <th scope="col">Code</th>
-          <th scope="col">Area km²</th>
-          <th scope="col">Score</th>
+          <th scope="col">Distrito</th>
+          <th scope="col">Código</th>
+          <th scope="col">Área km²</th>
+          <th scope="col">Nota</th>
         </tr>
       </thead>
       <tbody>

@@ -11,14 +11,14 @@ const themeBoot = `(function(){try{var s=localStorage.getItem("ecoguard-theme");
 
 export const metadata: Metadata = {
   title: "EcoGuard",
-  description: "City risk intelligence for São Paulo.",
+  description: "Inteligência de risco urbano para São Paulo.",
   icons: { icon: "/logo.svg" },
 };
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const nonce = (await headers()).get("x-nonce") ?? undefined;
   return (
-    <html lang="en" className={`${inter.variable} ${mono.variable}`} suppressHydrationWarning>
+    <html lang="pt-BR" className={`${inter.variable} ${mono.variable}`} suppressHydrationWarning>
       <head>
         <script nonce={nonce} dangerouslySetInnerHTML={{ __html: themeBoot }} />
       </head>

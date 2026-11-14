@@ -9,13 +9,13 @@ export function DistrictDetail({ code }: { code: string }) {
   const state = useDistrict(code);
 
   if (state.status === "loading") {
-    return <LoadingState label="Loading district…" />;
+    return <LoadingState label="Carregando o distrito…" />;
   }
   if (state.status === "missing") {
     return (
       <div className="state">
-        <p>This district code is not in the loaded layer.</p>
-        <Link href="/map">Back to the map</Link>
+        <p>Este código não está na camada carregada.</p>
+        <Link href="/map">Voltar ao mapa</Link>
       </div>
     );
   }
@@ -25,13 +25,14 @@ export function DistrictDetail({ code }: { code: string }) {
   return (
     <article className="stack">
       <h2>{state.data.name}</h2>
-      <p className="num">Code {state.data.code}</p>
+      <p className="num">Código {state.data.code}</p>
       <RiskMark level={state.data.score?.overallClass ?? "nodata"} />
       <p className="meta">
-        Area {state.data.areaKm2 ?? "unknown"} km². Source {state.data.source}. Updated{" "}
-        {state.data.sourceUpdatedAt ?? "unknown"}. Scores for this district have not been computed.
+        Área {state.data.areaKm2 ?? "desconhecida"} km². Fonte {state.data.source}. Atualizado em{" "}
+        {state.data.sourceUpdatedAt ?? "data desconhecida"}. As notas deste distrito ainda não foram
+        calculadas.
       </p>
-      <Link href="/map">Back to the map</Link>
+      <Link href="/map">Voltar ao mapa</Link>
     </article>
   );
 }

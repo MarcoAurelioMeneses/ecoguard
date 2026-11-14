@@ -19,40 +19,40 @@ export function Overview() {
   return (
     <section className="stack">
       <div className="toolbar">
-        <h2>Indicators</h2>
+        <h2>Indicadores</h2>
         <ViewToggle table={table} onChange={setTable} />
       </div>
-      {state.status === "loading" ? <LoadingState label="Loading districts…" /> : null}
+      {state.status === "loading" ? <LoadingState label="Carregando distritos…" /> : null}
       {state.status === "error" ? <ErrorState message={state.message} onRetry={reload} /> : null}
       {state.status === "empty" ? (
         <EmptyState
-          title="No districts loaded"
-          detail="Run the GeoSampa collector to fill the 96 municipal districts."
+          title="Nenhum distrito carregado"
+          detail="Rode o coletor do GeoSampa para preencher os 96 distritos municipais."
         />
       ) : null}
       {state.status === "ready" ? (
         <>
           <div className="kpi-row">
             <article className="kpi">
-              <h3>Overall</h3>
+              <h3>Geral</h3>
               <p className="num kpi-value">{formatScore(state.data[0]?.score?.overall)}</p>
               <RiskMark level={state.data[0]?.score?.overallClass ?? "nodata"} />
             </article>
             <article className="kpi">
-              <h3>Heat forecast</h3>
+              <h3>Previsão de calor</h3>
               <p className="num kpi-value">{formatScore(state.data[0]?.score?.heat)}</p>
-              <p className="meta">City Open-Meteo forecast, not a station observation</p>
+              <p className="meta">Previsão Open-Meteo da cidade, não uma observação de estação</p>
             </article>
             <article className="kpi">
-              <h3>Rain forecast</h3>
+              <h3>Previsão de chuva</h3>
               <p className="num kpi-value">{formatScore(state.data[0]?.score?.rain)}</p>
-              <p className="meta">Same city reference for every district</p>
+              <p className="meta">A mesma referência da cidade para todos os distritos</p>
             </article>
             <article className="kpi">
               <h3>Dengue</h3>
               <p className="num kpi-value">{formatScore(state.data[0]?.score?.dengue)}</p>
               <RiskMark level={state.data[0]?.score?.healthClass ?? "nodata"} />
-              <p className="meta">Municipal InfoDengue, not a district rate</p>
+              <p className="meta">InfoDengue municipal, não uma taxa por distrito</p>
             </article>
           </div>
           {table ? (

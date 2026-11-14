@@ -8,11 +8,11 @@ export function AnalystChat() {
 
   return (
     <section className="stack chat">
-      <p className="ai-tag">AI</p>
+      <p className="ai-tag">IA</p>
       <p className="disclaimer">
-        Answers may contain errors. Check the cited source and date before you rely on a number.
+        As respostas podem conter erros. Confira a fonte citada e a data antes de confiar em um número.
       </p>
-      {chat.status === "loading" ? <p role="status">Asking the analyst…</p> : null}
+      {chat.status === "loading" ? <p role="status">Consultando o analista…</p> : null}
       {chat.status === "error" ? <ErrorState message={chat.error} /> : null}
       {chat.answer ? (
         <article className="answer">
@@ -24,7 +24,7 @@ export function AnalystChat() {
               onClick={() => chat.setFeedback("up")}
               aria-pressed={chat.feedback === "up"}
             >
-              Useful
+              Útil
             </button>
             <button
               type="button"
@@ -32,15 +32,17 @@ export function AnalystChat() {
               onClick={() => chat.setFeedback("down")}
               aria-pressed={chat.feedback === "down"}
             >
-              Not useful
+              Não útil
             </button>
             <button type="button" className="control" onClick={() => void chat.submit(chat.question)}>
-              Regenerate
+              Regenerar
             </button>
           </div>
         </article>
       ) : chat.status === "idle" ? (
-        <p className="meta">No answer yet. Ask about a district, a source, or the score formula.</p>
+        <p className="meta">
+          Ainda não há resposta. Pergunte sobre um distrito, uma fonte ou a fórmula da nota.
+        </p>
       ) : null}
       <form
         className="ask"
@@ -49,7 +51,7 @@ export function AnalystChat() {
           void chat.submit(chat.question);
         }}
       >
-        <label htmlFor="question">Question</label>
+        <label htmlFor="question">Pergunta</label>
         <textarea
           id="question"
           value={chat.question}
@@ -57,7 +59,7 @@ export function AnalystChat() {
           onChange={(event) => chat.setQuestion(event.target.value)}
         />
         <button type="submit" className="control is-on">
-          Send
+          Enviar
         </button>
       </form>
     </section>
