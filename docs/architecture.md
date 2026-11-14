@@ -77,7 +77,7 @@ flowchart TB
 
 Ingestion is `RunIngestion`. A `SourcePort` returns domain records. The use case upserts `raw`, `staging`, and `marts.districts`, then writes `ops.job_runs`. Re-runs update the natural key. Use-case tests pass an in-memory store.
 
-The analyst answers `POST /analyst/questions` when `OPENAI_API_KEY` is set and returns 503 otherwise. SQL it is allowed to read is the `agent` schema. That role has no grant on `raw`, `staging`, or base `marts` tables.
+The analyst answers `POST /analyst/questions` when `OPENAI_API_KEY` is set and returns 503 otherwise. It has no free-SQL tool. Its JDBC login is `ecoguard_agent`, which can select `agent` views and is not a member of the table owner.
 
 ## Frontend shape
 

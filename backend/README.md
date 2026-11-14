@@ -22,4 +22,4 @@ ErrorProne is optional: `./gradlew check -Perrorprone=true`. SpotBugs runs on `d
 
 Collectors are covered with WireMock. The JDBC upsert test uses Testcontainers and `infra/postgres/Dockerfile` (PostGIS and pgvector). It runs when Docker is available.
 
-The analyst SQL tool allows one `SELECT` that mentions `agent.` and then `SET LOCAL ROLE ecoguard_agent`. Document search orders `agent.documents` by pgvector distance. The model is not called in tests.
+The analyst has no free-SQL tool. It connects as `ecoguard_agent` and may only read `agent` views. Document search orders `agent.documents` by pgvector distance. Without `OPENAI_API_KEY` the route returns 503 and the model bean is not created. The model is not called in tests.
